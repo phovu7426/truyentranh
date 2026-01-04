@@ -1,0 +1,57 @@
+/* Global CSS imports */
+@import 'vue-multiselect/dist/vue-multiselect.css';
+
+/* Global styles */
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif;
+}
+
+/* Responsive table wrapper (admin/mobile) */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+/* Ensure table can grow wider than container when needed */
+.table-responsive > table {
+  width: 100%;
+  min-width: max-content;
+}
+
+/* Optional: nicer horizontal scrollbar */
+.table-responsive {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.45) transparent;
+}
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+.table-responsive::-webkit-scrollbar-track {
+  background: transparent;
+}
+.table-responsive::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.35);
+  border-radius: 9999px;
+}
+
+/* Admin: nhiều page bọc table bằng card overflow-hidden -> không vuốt ngang được trên mobile.
+   Ép card kiểu này cho phép scroll ngang (scope trong admin-layout). */
+.admin-layout main .bg-white.shadow-md.rounded-lg.overflow-hidden {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+.admin-layout main .bg-white.shadow-md.rounded-lg.overflow-hidden > table {
+  width: 100%;
+  min-width: max-content;
+}
+
+/* Prevent duplicate imports */
+.multiselect {
+  /* Ensure styles are applied */
+} 

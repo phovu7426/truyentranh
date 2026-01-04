@@ -1,0 +1,33 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Simple background with slight gray tint -->
+  <rect width="400" height="300" fill="#f5f5f5"/>
+  
+  <!-- Full border image icon -->
+  <g transform="translate(200, 150)">
+    <!-- Image frame with full border -->
+    <rect x="-60" y="-45" width="120" height="90" rx="4" fill="white" stroke="#9ca3af" stroke-width="2"/>
+    
+    <!-- Simple image placeholder -->
+    <g transform="translate(0, -5)">
+      <!-- Simple mountain -->
+      <path d="M-50 -15 L-25 10 L50 -15 L50 10 L-50 10 Z" fill="#d1d5db" opacity="0.7"/>
+      
+      <!-- Simple sun -->
+      <circle cx="35" cy="-25" r="6" fill="#fbbf24" opacity="0.7"/>
+      
+      <!-- Horizon line -->
+      <line x1="-50" y1="10" x2="50" y2="10" stroke="#d1d5db" stroke-width="1" opacity="0.5"/>
+    </g>
+    
+    <!-- X mark to indicate no image -->
+    <g stroke="#6b7280" stroke-width="2.5" opacity="0.6">
+      <line x1="-10" y1="-10" x2="10" y2="10"/>
+      <line x1="10" y1="-10" x2="-10" y2="10"/>
+    </g>
+  </g>
+  
+  <!-- Simple text -->
+  <text x="200" y="210" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="16" font-weight="500">
+    Không có hình ảnh
+  </text>
+</svg>

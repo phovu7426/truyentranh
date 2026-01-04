@@ -1,0 +1,30 @@
+# Robots.txt cho website
+# Cho phép tất cả các search engines truy cập
+
+User-Agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /user/profile/
+Disallow: /home/cart/
+Disallow: /home/checkout/
+Disallow: /home/orders/
+Disallow: /home/order-success/
+Disallow: /home/payment/
+
+# Sitemap location
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# Crawl-delay (tùy chọn, giảm tải server)
+Crawl-delay: 1
+
+# Block specific bots nếu cần
+User-Agent: AhrefsBot
+Disallow: /
+
+User-Agent: SemrushBot
+Disallow: /
+
+User-Agent: MJ12bot
+Disallow: /
