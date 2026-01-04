@@ -360,6 +360,38 @@ export const adminEndpoints = {
   userGroups: {
     list: '/api/user/groups', // GET - Lấy danh sách groups của user hiện tại
   },
+  comicCategories: {
+    list: '/api/admin/comic-categories',
+    create: '/api/admin/comic-categories',
+    show: (id: Id) => `/api/admin/comic-categories/${id}`,
+    update: (id: Id) => `/api/admin/comic-categories/${id}`,
+    delete: (id: Id) => `/api/admin/comic-categories/${id}`,
+  },
+  comics: {
+    list: '/api/admin/comics',
+    simple: '/api/admin/comics/simple',
+    create: '/api/admin/comics',
+    show: (id: Id) => `/api/admin/comics/${id}`,
+    update: (id: Id) => `/api/admin/comics/${id}`,
+    delete: (id: Id) => `/api/admin/comics/${id}`,
+    restore: (id: Id) => `/api/admin/comics/${id}/restore`,
+    uploadCover: (id: Id) => `/api/admin/comics/${id}/cover`,
+    assignCategories: (id: Id) => `/api/admin/comics/${id}/comic-categories`,
+    getChapters: (id: Id) => `/api/admin/comics/${id}/chapters`,
+  },
+  chapters: {
+    list: '/api/admin/chapters',
+    create: '/api/admin/chapters',
+    show: (id: Id) => `/api/admin/chapters/${id}`,
+    update: (id: Id) => `/api/admin/chapters/${id}`,
+    delete: (id: Id) => `/api/admin/chapters/${id}`,
+    restore: (id: Id) => `/api/admin/chapters/${id}/restore`,
+    reorder: (id: Id) => `/api/admin/chapters/${id}/reorder`,
+    getByComic: (comicId: Id) => `/api/admin/chapters/comics/${comicId}`,
+    getPages: (id: Id) => `/api/admin/chapters/${id}/pages`,
+    uploadPages: (id: Id) => `/api/admin/chapters/${id}/pages`,
+    updatePages: (id: Id) => `/api/admin/chapters/${id}/pages`,
+  },
   // Note: rbac.syncRoles endpoint không tồn tại trong API
   // Sử dụng users.assignRoles (PUT /api/admin/users/:id/roles) với X-Group-Id header thay thế
 } as const

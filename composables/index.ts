@@ -23,4 +23,4 @@ export * from './upload'
 export * from './user'
 
 // Groups composables
-export * from './groups'
+export * from './group'

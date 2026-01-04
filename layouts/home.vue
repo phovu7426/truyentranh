@@ -41,7 +41,7 @@
             <div class="relative w-full">
               <input 
                 type="text" 
-                placeholder="Tìm kiếm sản phẩm..." 
+                placeholder="Tìm kiếm truyện tranh..." 
                 class="w-full px-4 py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -53,22 +53,6 @@
           </div>
           
           <nav class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-            <!-- Cart Icon -->
-            <NuxtLink
-              to="/home/cart"
-              class="relative p-2 text-gray-600 hover:text-gray-900 transition-colors flex-shrink-0"
-              aria-label="Giỏ hàng"
-              title="Giỏ hàng"
-            >
-              <span class="sr-only">Giỏ hàng</span>
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m6 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
-              </svg>
-              <span v-if="cartItemsCount > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {{ cartItemsCount }}
-              </span>
-            </NuxtLink>
-            
             <!-- User Menu -->
             <ClientOnly>
               <template v-if="isAuthenticated && userRole !== 'admin'">
@@ -269,7 +253,7 @@
               <input
                 v-model="mobileSearch"
                 type="text"
-                placeholder="Tìm kiếm sản phẩm..."
+                placeholder="Tìm kiếm truyện tranh..."
                 class="w-full px-4 py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -387,18 +371,6 @@
 
           <!-- Mobile footer actions -->
           <div class="border-t border-gray-200 p-4 space-y-2">
-            <NuxtLink
-              to="/home/cart"
-              :prefetch="false"
-              class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition-colors"
-              @click="closeMobileMenu"
-            >
-              <span>Giỏ hàng</span>
-              <span v-if="cartItemsCount > 0" class="inline-flex items-center justify-center text-xs bg-white/20 rounded-full px-2 py-0.5">
-                {{ cartItemsCount }}
-              </span>
-            </NuxtLink>
-
             <template v-if="!isAuthenticated">
               <NuxtLink
                 to="/auth/login"
@@ -445,12 +417,12 @@
             <p class="text-gray-400 mb-4">{{ siteDescription }}</p>
           </div>
           <div>
-            <h4 class="text-lg font-semibold mb-4">Sản phẩm</h4>
+            <h4 class="text-lg font-semibold mb-4">Truyện tranh</h4>
             <ul class="space-y-2 text-gray-400">
-              <li><a href="#" class="hover:text-white transition-colors">Quản lý sản phẩm</a></li>
-              <li><a href="#" class="hover:text-white transition-colors">Quản lý đơn hàng</a></li>
-              <li><a href="#" class="hover:text-white transition-colors">Báo cáo thống kê</a></li>
-              <li><a href="#" class="hover:text-white transition-colors">Quản lý khách hàng</a></li>
+              <li><NuxtLink to="/home/comics" class="hover:text-white transition-colors">Danh sách truyện</NuxtLink></li>
+              <li><NuxtLink to="/home/comics?sort_by=view_count&sort_order=DESC" class="hover:text-white transition-colors">Truyện hot</NuxtLink></li>
+              <li><NuxtLink to="/home/comics?sort_by=created_at&sort_order=DESC" class="hover:text-white transition-colors">Truyện mới</NuxtLink></li>
+              <li><NuxtLink to="/home/comics?sort_by=follow_count&sort_order=DESC" class="hover:text-white transition-colors">Truyện phổ biến</NuxtLink></li>
             </ul>
           </div>
           <div>
@@ -503,7 +475,6 @@ import { computed, watch, ref, onMounted, onUnmounted } from 'vue'
 import { useUserNavigation } from '@/composables/navigation/useUserNavigation'
 import { useAuthStore } from '@/stores/auth'
 import { useGlobalSystemConfig } from '~/composables/system-config'
-import { useCart } from '~/composables/cart'
 import { useGlobalApiClient } from '@/composables/api/useApiClient'
 import { publicEndpoints } from '@/api/endpoints'
 import UserDropdown from '@/components/Layout/Shared/UserDropdown.vue'
@@ -551,9 +522,6 @@ useHead(() => {
     title: pageTitle.value
   }
 })
-
-// Sử dụng cart composable
-const { itemsCount: cartItemsCount } = useCart()
 
 // Sử dụng API client
 const { apiClient } = useGlobalApiClient()

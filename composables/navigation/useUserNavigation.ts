@@ -21,10 +21,17 @@ export function useUserNavigation(): UserNavigationResult {
       status: 'active'
     },
     {
-      name: 'Sản phẩm',
-      path: '/home/products',
-      api: 'api/products',
-      icon: '📦',
+      name: 'Truyện tranh',
+      path: '/home/comics',
+      api: 'api/comics',
+      icon: '📚',
+      status: 'active'
+    },
+    {
+      name: 'Thể loại',
+      path: '/home/comics',
+      api: 'api/comic-categories',
+      icon: '🏷️',
       status: 'active'
     },
     {
@@ -60,36 +67,29 @@ export function useUserNavigation(): UserNavigationResult {
       status: 'active'
     },
     {
-      name: 'Đơn hàng',
-      path: '/user/orders',
-      api: 'api/user/orders',
-      icon: '📋',
+      name: 'Lịch sử đọc',
+      path: '/user/reading-history',
+      api: 'api/user/reading-history',
+      icon: '📖',
       status: 'active'
     },
     {
-      name: 'Yêu thích',
-      path: '/user/wishlist',
-      api: 'api/user/wishlist',
+      name: 'Truyện yêu thích',
+      path: '/user/bookmarks',
+      api: 'api/user/bookmarks',
       icon: '❤️',
       status: 'active'
     },
     {
-      name: 'Đánh giá',
-      path: '/user/reviews',
-      api: 'api/user/reviews',
+      name: 'Đang theo dõi',
+      path: '/user/follows',
+      api: 'api/user/follows',
       icon: '⭐',
       status: 'active'
     },
     {
-      name: 'Địa chỉ',
-      path: '/user/addresses',
-      api: 'api/user/addresses',
-      icon: '📍',
-      status: 'active'
-    },
-    {
       name: 'Cài đặt',
-      path: '/user/settings',
+      path: '/user/profile/edit',
       api: 'api/user/settings',
       icon: '⚙️',
       status: 'active'

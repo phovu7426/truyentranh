@@ -121,28 +121,6 @@ export const publicEndpoints = {
     list: '/api/public/post-tags',
     showBySlug: (slug: string) => `/api/public/post-tags/${slug}`,
   },
-  productCategories: {
-    list: '/api/public/product-categories',
-    show: (id: Id) => `/api/public/product-categories/${id}`,
-    showBySlug: (slug: string) => `/api/public/product-categories/${slug}`,
-    tree: '/api/public/product-categories/tree',
-    root: '/api/public/product-categories/root',
-    popular: '/api/public/product-categories/popular',
-    search: '/api/public/product-categories/search',
-    products: (id: Id) => `/api/public/product-categories/${id}/products`,
-    productsBySlug: (slug: string) => `/api/public/product-categories/${slug}/products`,
-  },
-  products: {
-    list: '/api/public/products',
-    show: (id: Id) => `/api/public/products/${id}`,
-    showBySlug: (slug: string) => `/api/public/products/${slug}`,
-    featured: '/api/public/products/featured',
-    bestSelling: '/api/public/products/best-selling',
-    newArrivals: '/api/public/products/new-arrivals',
-    search: '/api/public/products/search',
-    byCategory: (slug: string) => `/api/public/products/category/${slug}`,
-    reviews: (id: Id) => `/api/public/products/${id}/reviews`,
-  },
   contacts: {
     create: '/api/public/contacts',
   },
@@ -150,52 +128,70 @@ export const publicEndpoints = {
     getByGroup: (group: string) => `/api/system-configs/group/${group}`,
     general: '/api/public/system-config/general',
   },
-  orders: {
-    list: '/api/public/orders',
-    create: '/api/public/orders',
-    show: (id: Id) => `/api/public/orders/${id}`,
-    cancel: (id: Id) => `/api/public/orders/${id}/cancel`,
-    status: (orderNumber: string) => `/api/public/orders/status/${orderNumber}`,
-    showGuest: (orderNumber: string, email: string) => `/api/public/orders/guest/${orderNumber}?email=${email}`,
-    userAddress: '/api/public/orders/user-address',
-    payment: (orderId: Id) => `/api/public/orders/${orderId}/payment`,
-  },
-  paymentMethods: {
-    list: '/api/public/payment-methods',
-  },
-  shippingMethods: {
-    list: '/api/public/shipping-methods',
-    active: '/api/public/shipping-methods/active',
-    show: (id: Id) => `/api/public/shipping-methods/${id}`,
-    calculate: '/api/public/shipping-methods/calculate',
-  },
-  cart: {
-    list: '/api/public/cart',
-    add: '/api/public/cart/add',
-    update: (itemId: Id) => `/api/public/cart/items/${itemId}`,
-    remove: (itemId: Id) => `/api/public/cart/item/${itemId}`,
-    clear: '/api/public/cart/clear',
-    summary: '/api/public/cart/summary',
-  },
-  discounts: {
-    coupons: {
-      available: '/api/public/discounts/coupons/available',
-    },
-    applyCoupon: '/api/public/discounts/apply-coupon',
-    removeCoupon: (cartIdOrUuid: Id) => `/api/public/discounts/remove-coupon/${cartIdOrUuid}`,
-    validateCoupon: '/api/public/discounts/validate-coupon',
-  },
-  payments: {
-    list: '/api/public/payments',
-    show: (id: Id) => `/api/public/payments/${id}`,
-    createUrl: '/api/public/payments/create-url',
-    verify: (gateway: string) => `/api/public/payments/verify/${gateway}`,
-  },
   banners: {
     list: '/api/public/banners',
     show: (id: Id) => `/api/public/banners/${id}`,
     getByLocation: (locationCode: string) => `/api/public/banners/location/${locationCode}`,
   },
+  comicCategories: {
+    list: '/api/public/comic-categories',
+  },
+  comics: {
+    list: '/api/public/comics',
+    showBySlug: (slug: string) => `/api/public/comics/${slug}`,
+    trending: '/api/public/comics/trending',
+    popular: '/api/public/comics/popular',
+    newest: '/api/public/comics/newest',
+    getChapters: (slug: string) => `/api/public/comics/${slug}/chapters`,
+  },
+  chapters: {
+    list: '/api/public/chapters',
+    show: (id: Id) => `/api/public/chapters/${id}`,
+    getPages: (id: Id) => `/api/public/chapters/${id}/pages`,
+    getNext: (id: Id) => `/api/public/chapters/${id}/next`,
+    getPrev: (id: Id) => `/api/public/chapters/${id}/prev`,
+    trackView: (id: Id) => `/api/public/chapters/${id}/view`,
+  },
+  comments: {
+    getByComic: (comicId: Id) => `/api/public/comments/comics/${comicId}`,
+    getByChapter: (chapterId: Id) => `/api/public/comments/chapters/${chapterId}`,
+  },
+  reviews: {
+    getByComic: (comicId: Id) => `/api/public/reviews/comics/${comicId}`,
+  },
 } as const
+
+// User endpoints (require authentication)
+export const userEndpoints = {
+  bookmarks: {
+    list: '/api/user/bookmarks',
+    create: '/api/user/bookmarks',
+    delete: (id: Id) => `/api/user/bookmarks/${id}`,
+  },
+  comments: {
+    list: '/api/user/comments',
+    create: '/api/user/comments',
+    update: (id: Id) => `/api/user/comments/${id}`,
+    delete: (id: Id) => `/api/user/comments/${id}`,
+  },
+  follows: {
+    list: '/api/user/follows',
+    follow: (comicId: Id) => `/api/user/follows/comics/${comicId}`,
+    unfollow: (comicId: Id) => `/api/user/follows/comics/${comicId}`,
+    isFollowing: (comicId: Id) => `/api/user/follows/comics/${comicId}/is-following`,
+  },
+  readingHistory: {
+    list: '/api/user/reading-history',
+    create: '/api/user/reading-history',
+    delete: (id: Id) => `/api/user/reading-history/${id}`,
+  },
+  reviews: {
+    list: '/api/user/reviews',
+    createOrUpdate: (comicId: Id) => `/api/user/reviews/comics/${comicId}`,
+    delete: (comicId: Id) => `/api/user/reviews/comics/${comicId}`,
+  },
+} as const
+
+export type UserEndpoints = typeof userEndpoints
 
 export type PublicEndpoints = typeof publicEndpoints
