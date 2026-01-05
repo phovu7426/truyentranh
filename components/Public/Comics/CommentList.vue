@@ -46,10 +46,10 @@
 
     <!-- Pagination -->
     <Pagination
-      v-if="pagination.totalPages > 1"
-      :current-page="pagination.page"
-      :total-pages="pagination.totalPages"
-      :total-items="pagination.total"
+      v-if="totalPages > 1"
+      :current-page="currentPage"
+      :total-pages="totalPages"
+      :total-items="total"
       @page-change="handlePageChange"
     />
   </div>
@@ -79,7 +79,7 @@ const isAuthenticated = computed(() => authStore.isAuthenticated)
 const loading = ref(false)
 const comments = ref<any[]>([])
 
-const { pagination, changePage } = usePagination()
+const { currentPage, perPage, total, totalPages, setPage, setTotal } = usePagination()
 
 const endpoint = computed(() => {
   if (props.chapterId) {
@@ -101,14 +101,13 @@ async function loadComments() {
   try {
     const response = await apiClient.get(endpoint.value, {
       params: {
-        page: pagination.page,
-        limit: pagination.limit
+        page: currentPage.value || 1,
+        limit: perPage.value || 10
       }
     })
     if (response.data?.success) {
       comments.value = response.data.data || []
-      pagination.total = response.data.meta?.total || 0
-      pagination.totalPages = response.data.meta?.totalPages || 1
+      setTotal(response.data.meta?.total || 0)
     }
   } catch (error) {
     console.error('Failed to load comments:', error)
@@ -136,7 +135,7 @@ function handleReply(parentId: number) {
 }
 
 function handlePageChange(page: number) {
-  changePage(page)
+  setPage(page)
   loadComments()
 }
 </script>

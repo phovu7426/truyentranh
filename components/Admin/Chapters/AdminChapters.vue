@@ -285,8 +285,6 @@ const {
   closeEditModal,
   openDeleteModal: confirmDelete,
   closeDeleteModal,
-  openModal,
-  closeModal,
   updateFilters,
   changePage,
   refresh,
@@ -323,6 +321,21 @@ const {
   onUpdated: (item) => emit('updated', item),
   onDeleted: (id) => emit('deleted', id)
 })
+
+// Custom modal handlers - use the same modals instance from useAdminListPage
+function openModal(modalName: string) {
+  if (modals.value && modalName in modals.value) {
+    modals.value[modalName] = true
+    clearApiErrors()
+  }
+}
+
+function closeModal(modalName: string) {
+  if (modals.value && modalName in modals.value) {
+    modals.value[modalName] = false
+    clearApiErrors()
+  }
+}
 
 const { apiClient } = useGlobalApiClient()
 

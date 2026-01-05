@@ -143,6 +143,7 @@ export const publicEndpoints = {
     popular: '/api/public/comics/popular',
     newest: '/api/public/comics/newest',
     getChapters: (slug: string) => `/api/public/comics/${slug}/chapters`,
+    getChapterByIndex: (slug: string, chapterIndex: number | string) => `/api/public/comics/${slug}/chapters/${chapterIndex}`,
   },
   chapters: {
     list: '/api/public/chapters',

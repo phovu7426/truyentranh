@@ -1,9 +1,15 @@
 <template>
-  <div class="min-h-screen bg-gray-900" data-chapter-reader="true">
-    <!-- Chapter Reader - Hiển thị khi có chapter (có thể chưa có pages) -->
+  <div class="min-h-screen bg-white" data-chapter-reader="true">
+    <!-- Chapter Reader - Hiển thị khi có chapter -->
     <div v-if="chapter" class="relative">
-      <!-- Header Bar -->
-      <div class="fixed top-0 left-0 right-0 bg-black/80 backdrop-blur-sm z-50 px-4 py-3">
+      <!-- Header Bar - Auto hide khi scroll -->
+      <div 
+        :class="[
+          'fixed top-0 left-0 right-0 bg-black/80 backdrop-blur-sm z-50 px-4 py-3 transition-transform duration-300',
+          showHeader ? 'translate-y-0' : '-translate-y-full'
+        ]"
+        @mouseenter="showHeader = true"
+      >
         <div class="max-w-7xl mx-auto flex items-center justify-between">
           <div class="flex items-center space-x-4">
             <NuxtLink
@@ -15,7 +21,7 @@
               </svg>
             </NuxtLink>
             <div class="text-white">
-              <h1 class="font-semibold">{{ chapter.title }}</h1>
+              <h1 class="font-semibold">{{ chapter.title || `Chương ${chapter.chapter_index}` }}</h1>
               <p class="text-sm text-gray-300">{{ comicTitle }}</p>
             </div>
           </div>
@@ -33,7 +39,7 @@
             <!-- Chapter Navigation -->
             <button
               v-if="prevChapter"
-              @click="goToChapter(prevChapter.id)"
+              @click="goToChapter(prevChapter.chapter_index)"
               class="px-3 py-1 bg-white/10 text-white rounded hover:bg-white/20 transition-colors flex items-center"
               title="Chương trước (←)"
             >
@@ -43,7 +49,7 @@
             </button>
             <button
               v-if="nextChapter"
-              @click="goToChapter(nextChapter.id)"
+              @click="goToChapter(nextChapter.chapter_index)"
               class="px-3 py-1 bg-white/10 text-white rounded hover:bg-white/20 transition-colors flex items-center"
               title="Chương sau (→)"
             >
@@ -54,6 +60,7 @@
 
             <!-- Bookmark Button -->
             <BookmarkButton
+              v-if="chapter.id"
               :chapter-id="chapter.id"
               :page-number="currentPage"
             />
@@ -92,23 +99,33 @@
         </div>
       </div>
 
-      <!-- Pages -->
-      <div class="pt-16 pb-8">
+      <!-- Hover Zone - Hiện header khi hover vào đầu trang -->
+      <div
+        v-if="!showHeader"
+        @mouseenter="showHeader = true"
+        class="fixed top-0 left-0 right-0 h-20 z-40"
+      ></div>
+
+      <!-- Pages - Padding tự động điều chỉnh khi header ẩn -->
+      <div :class="[
+        'transition-all duration-300',
+        showHeader ? 'pt-16' : 'pt-0'
+      ]">
         <!-- Loading Pages -->
         <div v-if="pagesLoading" class="flex items-center justify-center min-h-[60vh]">
-          <div class="text-white text-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <div class="text-gray-700 text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-700 mx-auto mb-4"></div>
             <p>Đang tải danh sách trang...</p>
           </div>
         </div>
 
         <!-- Error Loading Pages -->
         <div v-else-if="pagesError" class="flex items-center justify-center min-h-[60vh]">
-          <div class="text-white text-center max-w-md mx-auto px-4">
-            <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="text-gray-700 text-center max-w-md mx-auto px-4">
+            <svg class="mx-auto h-12 w-12 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
             </svg>
-            <h3 class="text-lg font-medium mb-2">{{ pagesError }}</h3>
+            <h3 class="text-lg font-medium mb-2 text-gray-900">{{ pagesError }}</h3>
             <button
               @click="loadPages()"
               class="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
@@ -120,11 +137,11 @@
 
         <!-- No Pages -->
         <div v-else-if="pages.length === 0" class="flex items-center justify-center min-h-[60vh]">
-          <div class="text-white text-center max-w-md mx-auto px-4">
-            <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="text-gray-700 text-center max-w-md mx-auto px-4">
+            <svg class="mx-auto h-12 w-12 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
             </svg>
-            <h3 class="text-lg font-medium mb-2">Chương này chưa có trang nào</h3>
+            <h3 class="text-lg font-medium mb-2 text-gray-900">Chương này chưa có trang nào</h3>
             <NuxtLink
               :to="`/home/comics/${comicSlug}`"
               class="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
@@ -134,29 +151,23 @@
           </div>
         </div>
 
-        <!-- Pages Content -->
+        <!-- Pages Content - Ảnh liên tiếp, không có khung -->
         <template v-else>
           <div
             v-if="readingMode === 'vertical'"
             ref="verticalScrollContainer"
-            class="max-w-4xl mx-auto space-y-4 overflow-y-auto"
-            style="max-height: calc(100vh - 200px);"
-            @scroll="handleVerticalScroll"
+            class="w-full"
           >
-            <div
+            <img
               v-for="(page, index) in pages"
               :key="page.id"
               :ref="el => setPageRef(el, index)"
-              class="page-container"
-            >
-              <img
-                :src="page.image_url"
-                :alt="`Trang ${page.page_number}`"
-                class="w-full h-auto"
-                @error="handleImageError"
-                @load="handleImageLoad"
-              />
-            </div>
+              :src="page.image_url"
+              :alt="`Trang ${page.page_number}`"
+              class="w-full h-auto block"
+              @error="handleImageError"
+              @load="handleImageLoad"
+            />
           </div>
 
           <div
@@ -178,45 +189,13 @@
         </template>
       </div>
 
-      <!-- Bottom Navigation -->
-      <div class="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-sm z-50 px-4 py-3">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-          <button
-            v-if="prevChapter"
-            @click="goToChapter(prevChapter.id)"
-            class="px-4 py-2 bg-white/10 text-white rounded hover:bg-white/20 transition-colors flex items-center"
-            title="Chương trước (←)"
-          >
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-            Chương trước
-          </button>
-          <div class="text-white text-sm font-medium">
-            <span v-if="pages.length > 0">Trang {{ currentPage }} / {{ pages.length }}</span>
-            <span v-else>Đang tải...</span>
-          </div>
-          <button
-            v-if="nextChapter"
-            @click="goToChapter(nextChapter.id)"
-            class="px-4 py-2 bg-white/10 text-white rounded hover:bg-white/20 transition-colors flex items-center"
-            title="Chương sau (→)"
-          >
-            Chương sau
-            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-
       <!-- Comments Section -->
       <div class="bg-white min-h-screen pt-24 pb-8">
         <div class="max-w-4xl mx-auto px-4">
           <h2 class="text-2xl font-bold text-gray-900 mb-6">Bình luận</h2>
           <CommentList
             v-if="chapter"
-            :comic-id="chapter.comic_id"
+            :comic-id="chapter.comic_id || comicId"
             :chapter-id="chapter.id"
           />
         </div>
@@ -225,19 +204,19 @@
 
     <!-- Loading Chapter State -->
     <div v-else-if="loading" class="flex items-center justify-center min-h-screen">
-      <div class="text-white text-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+      <div class="text-gray-700 text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-700 mx-auto mb-4"></div>
         <p>Đang tải thông tin chương...</p>
       </div>
     </div>
 
     <!-- Chapter Not Found Error State -->
     <div v-else class="flex items-center justify-center min-h-screen">
-      <div class="text-white text-center">
-        <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="text-gray-700 text-center">
+        <svg class="mx-auto h-12 w-12 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
         </svg>
-        <h3 class="text-lg font-medium mb-2">Không tìm thấy chương</h3>
+        <h3 class="text-lg font-medium mb-2 text-gray-900">Không tìm thấy chương</h3>
         <NuxtLink
           :to="`/home/comics/${comicSlug}`"
           class="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -255,16 +234,12 @@ import { useRoute, useRouter } from 'vue-router'
 import { navigateTo } from '#app'
 import { useGlobalApiClient } from '@/composables/api'
 import { publicEndpoints, userEndpoints } from '@/api/endpoints'
+import { useSeo } from '@/composables/seo'
 import { useAuthStore } from '@/stores/auth'
 import BookmarkButton from '@/components/Public/Comics/BookmarkButton.vue'
 import CommentList from '@/components/Public/Comics/CommentList.vue'
 import ChapterSelector from '@/components/Public/Comics/ChapterSelector.vue'
 import { debounce } from '~/utils/debounce'
-
-definePageMeta({
-  layout: 'home',
-  key: (route) => `chapter-${route.params.slug}-${route.params.id}`
-})
 
 const route = useRoute()
 const router = useRouter()
@@ -276,6 +251,7 @@ const loading = ref(false)
 const pagesLoading = ref(false)
 const pagesError = ref<string | null>(null)
 const chapter = ref<any>(null)
+const comic = ref<any>(null)
 const pages = ref<any[]>([])
 const prevChapter = ref<any>(null)
 const nextChapter = ref<any>(null)
@@ -288,103 +264,149 @@ const pageRefs = ref<(HTMLElement | null)[]>([])
 const historyUpdatePending = ref(false)
 const verticalScrollContainer = ref<HTMLElement | null>(null)
 const horizontalScrollContainer = ref<HTMLElement | null>(null)
+const showHeader = ref(true)
+const lastScrollY = ref(0)
+const scrollTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 
 const comicSlug = computed(() => route.params.slug as string)
-const comicTitle = computed(() => chapter.value?.comic?.title || '')
-const comicId = computed(() => chapter.value?.comic_id || chapter.value?.comic?.id)
+const chapterIndex = computed(() => (route.params as any).chapter_index as string)
+const comicTitle = computed(() => comic.value?.title || chapter.value?.comic?.title || '')
+const comicId = computed(() => chapter.value?.comic_id || chapter.value?.comic?.id || comic.value?.id)
 
 // Load data
-async function loadData() {
-  console.log('Loading data for chapter:', route.params.id, 'slug:', route.params.slug)
-  await Promise.all([
-    loadChapter(),
-    loadPages(),
-    loadNavigation(),
-    loadAllChapters()
-  ])
-  
-  // Track view
-  trackView()
-  
-  // Check for page query param or bookmark
-  await checkAndScrollToPage()
-  
-  // Update reading history
-  updateReadingHistory()
-}
-
 onMounted(async () => {
   console.log('=== CHAPTER READER MOUNTED ===')
   console.log('Route path:', route.path)
-  console.log('Route params:', route.params)
-  console.log('Chapter ID:', route.params.id)
-  console.log('Slug:', route.params.slug)
-  console.log('Full route:', route)
+  console.log('Chapter Index:', chapterIndex.value)
+  console.log('Comic Slug:', comicSlug.value)
+  
+  // Setup keyboard navigation
+  window.addEventListener('keydown', handleKeyPress)
+  
   await loadData()
 })
 
-// Watch for route changes
-watch(() => route.params.id, async (newId, oldId) => {
-  if (newId !== oldId) {
-    console.log('Route changed, reloading data. Old ID:', oldId, 'New ID:', newId)
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyPress)
+  window.removeEventListener('scroll', handleWindowScroll)
+  if (scrollTimeout.value) {
+    clearTimeout(scrollTimeout.value)
+  }
+})
+
+watch(() => (route.params as any).chapter_index, async (newIndex, oldIndex) => {
+  if (newIndex !== oldIndex) {
     // Reset state
     chapter.value = null
+    comic.value = null
     pages.value = []
     prevChapter.value = null
     nextChapter.value = null
     viewTracked.value = false
     currentPage.value = 1
+    pageRefs.value = []
+    
     await loadData()
-    // Reload chapters list if needed
-    if (allChapters.value.length === 0) {
-      await loadAllChapters()
-    }
   }
 })
 
-// Keyboard navigation
-onMounted(() => {
-  window.addEventListener('keydown', handleKeyPress)
+watch(() => readingMode.value, (newMode) => {
+  if (newMode === 'vertical') {
+    window.addEventListener('scroll', handleWindowScroll, { passive: true })
+    // Reset scroll position tracking
+    lastScrollY.value = window.pageYOffset || document.documentElement.scrollTop
+  } else {
+    window.removeEventListener('scroll', handleWindowScroll)
+    // Show header khi chuyển sang horizontal mode
+    showHeader.value = true
+  }
 })
 
-onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeyPress)
-})
+async function loadData() {
+  await Promise.all([
+    loadChapter(),
+    loadAllChapters()
+  ])
+  
+  // Load pages after chapter is loaded
+  if (chapter.value?.id) {
+    await loadPages()
+    await loadNavigation()
+    
+    // Setup scroll listener after pages are loaded
+    await nextTick()
+    if (readingMode.value === 'vertical') {
+      window.addEventListener('scroll', handleWindowScroll, { passive: true })
+      // Initialize scroll position
+      lastScrollY.value = window.pageYOffset || document.documentElement.scrollTop
+    }
+    
+    // Track view
+    trackView()
+    
+    // Check for page query param or bookmark
+    await checkAndScrollToPage()
+    
+    // Update reading history
+    updateReadingHistory()
+  }
+}
 
 async function loadChapter() {
   loading.value = true
   try {
-    console.log('Loading chapter:', route.params.id)
-    const endpoint = publicEndpoints.chapters.show(route.params.id as string)
-    console.log('Chapter API endpoint:', endpoint)
-    const response = await apiClient.get(endpoint)
-    console.log('Chapter API response:', response.data)
-    if (response.data?.success) {
-      chapter.value = response.data.data
-      console.log('Chapter loaded:', chapter.value)
-    } else {
-      console.error('Chapter API returned error:', response.data?.message)
+    // First, get chapters list to find chapter by index
+    const chaptersResponse = await apiClient.get(publicEndpoints.comics.getChapters(comicSlug.value), {
+      params: {
+        chapter_index: chapterIndex.value,
+        limit: 1
+      }
+    })
+    
+    if (chaptersResponse.data?.success && chaptersResponse.data.data?.length > 0) {
+      const foundChapter = chaptersResponse.data.data[0]
+      
+      // Load full chapter details
+      const response = await apiClient.get(publicEndpoints.chapters.show(foundChapter.id.toString()), {
+        params: {
+          include: 'comic,prev,next'
+        }
+      })
+      
+      if (response.data?.success) {
+        chapter.value = response.data.data
+        comic.value = chapter.value?.comic || null
+        prevChapter.value = chapter.value?.prev_chapter || null
+        nextChapter.value = chapter.value?.next_chapter || null
+        
+        if (chapter.value && comic.value) {
+          useSeo({
+            title: `${chapter.value.title || `Chương ${chapter.value.chapter_index}`} - ${comic.value.title}`,
+            description: `Đọc ${chapter.value.title || `Chương ${chapter.value.chapter_index}`} của ${comic.value.title}`,
+            image: comic.value.cover_image,
+            type: 'article'
+          })
+        }
+      }
     }
   } catch (error: any) {
     console.error('Failed to load chapter:', error)
-    console.error('Error details:', error.response?.data)
   } finally {
     loading.value = false
   }
 }
 
 async function loadPages() {
+  if (!chapter.value?.id) return
+  
   pagesLoading.value = true
   pagesError.value = null
   try {
-    console.log('Loading pages for chapter:', route.params.id)
-    const endpoint = publicEndpoints.chapters.getPages(route.params.id as string)
-    console.log('API endpoint:', endpoint)
+    const endpoint = publicEndpoints.chapters.getPages(chapter.value.id.toString())
     const response = await apiClient.get(endpoint)
-    console.log('Pages API response:', response.data)
+    
     if (response.data?.success) {
       pages.value = response.data.data || []
-      console.log('Loaded pages:', pages.value.length)
       if (pages.value.length === 0) {
         pagesError.value = 'Chương này chưa có trang nào'
       }
@@ -402,10 +424,12 @@ async function loadPages() {
 }
 
 async function loadNavigation() {
+  if (!chapter.value?.id) return
+  
   try {
     const [prevResponse, nextResponse] = await Promise.all([
-      apiClient.get(publicEndpoints.chapters.getPrev(route.params.id as string)),
-      apiClient.get(publicEndpoints.chapters.getNext(route.params.id as string))
+      apiClient.get(publicEndpoints.chapters.getPrev(chapter.value.id.toString())),
+      apiClient.get(publicEndpoints.chapters.getNext(chapter.value.id.toString()))
     ])
 
     if (prevResponse.data?.success && prevResponse.data.data) {
@@ -440,37 +464,38 @@ async function loadAllChapters() {
 }
 
 function handleChapterChange(chapterId: number) {
-  goToChapter(chapterId)
+  // Find chapter by ID to get chapter_index
+  const selectedChapter = allChapters.value.find(c => c.id === chapterId)
+  if (selectedChapter) {
+    goToChapter(selectedChapter.chapter_index)
+  }
 }
 
 async function trackView() {
-  if (viewTracked.value) return
+  if (viewTracked.value || !chapter.value?.id) return
 
   try {
-    await apiClient.post(publicEndpoints.chapters.trackView(route.params.id as string))
+    await apiClient.post(publicEndpoints.chapters.trackView(chapter.value.id.toString()))
     viewTracked.value = true
   } catch (error) {
     // Silent fail for view tracking
   }
 }
 
-function goToChapter(chapterId: number) {
-  if (!comicSlug.value) {
-    console.error('Comic slug not available for navigation.')
-    return
-  }
-  const url = `/home/comics/${comicSlug.value}/chapters/${chapterId}`
-  console.log('Navigating to chapter:', url)
-  navigateTo(url).catch((err) => {
+async function goToChapter(index: number | string) {
+  if (!comicSlug.value) return
+  try {
+    await navigateTo(`/home/comics/${comicSlug.value}/chapters/${index}`)
+  } catch (err: any) {
     console.error('Navigation error:', err)
-  })
+  }
 }
 
 function handleKeyPress(event: KeyboardEvent) {
   if (event.key === 'ArrowLeft' && prevChapter.value) {
-    goToChapter(prevChapter.value.id)
+    goToChapter(prevChapter.value.chapter_index)
   } else if (event.key === 'ArrowRight' && nextChapter.value) {
-    goToChapter(nextChapter.value.id)
+    goToChapter(nextChapter.value.chapter_index)
   }
 }
 
@@ -485,7 +510,6 @@ function handleHorizontalScroll(event: Event) {
   const scrollLeft = container.scrollLeft
   const pageWidth = container.clientWidth
   
-  // Calculate which page is currently in view
   const pageIndex = Math.round(scrollLeft / pageWidth)
   const newPage = Math.min(Math.max(pageIndex + 1, 1), pages.value.length)
   
@@ -506,22 +530,60 @@ const handleVerticalScrollDebounced = debounce(() => {
 }, 2000)
 
 function handleVerticalScroll(event: Event) {
-  const container = event.target as HTMLElement
-  if (!container || pages.value.length === 0) return
+  // Legacy handler for container scroll (not used anymore but kept for compatibility)
+  handleWindowScroll()
+}
+
+function handleWindowScroll() {
+  if (readingMode.value !== 'vertical' || pages.value.length === 0) return
   
-  const scrollTop = container.scrollTop
-  const containerHeight = container.clientHeight
-  const viewportCenter = scrollTop + containerHeight / 2
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+  const windowHeight = window.innerHeight
+  const viewportCenter = scrollTop + windowHeight / 2
   
-  // Find which page is closest to viewport center
+  // Luôn hiện header khi ở đầu trang
+  if (scrollTop < 100) {
+    showHeader.value = true
+    lastScrollY.value = scrollTop
+    return
+  }
+  
+  // Auto-hide header khi scroll
+  const scrollDelta = scrollTop - lastScrollY.value
+  const scrollThreshold = 10 // Ngưỡng scroll để trigger hide/show
+  
+  // Ẩn header khi scroll xuống, hiện khi scroll lên
+  if (Math.abs(scrollDelta) > scrollThreshold) {
+    if (scrollDelta > 0) {
+      // Scroll xuống - ẩn header
+      showHeader.value = false
+    } else if (scrollDelta < 0) {
+      // Scroll lên - hiện header
+      showHeader.value = true
+    }
+    lastScrollY.value = scrollTop
+  }
+  
+  // Auto-show header sau 3 giây không scroll (để người dùng có thể thao tác)
+  if (scrollTimeout.value) {
+    clearTimeout(scrollTimeout.value)
+  }
+  scrollTimeout.value = setTimeout(() => {
+    if (scrollTop > 100) {
+      showHeader.value = true
+    }
+  }, 3000)
+  
+  // Track current page
   let closestIndex = 0
   let closestDistance = Infinity
   
   for (let i = 0; i < pageRefs.value.length; i++) {
     const pageEl = pageRefs.value[i]
     if (pageEl) {
-      const pageTop = pageEl.offsetTop
-      const pageHeight = pageEl.offsetHeight
+      const rect = pageEl.getBoundingClientRect()
+      const pageTop = rect.top + scrollTop
+      const pageHeight = rect.height
       const pageCenter = pageTop + pageHeight / 2
       const distance = Math.abs(viewportCenter - pageCenter)
       
@@ -540,7 +602,7 @@ function handleVerticalScroll(event: Event) {
 }
 
 function handleImageLoad() {
-  // Image loaded, no need to track here
+  // Image loaded
 }
 
 async function checkAndScrollToPage() {
@@ -563,7 +625,6 @@ async function checkAndScrollToPage() {
         const history = response.data.data || []
         const comicHistory = history.find((h: any) => h.comic_id === comicId.value)
         
-        // If reading history exists and matches current chapter, scroll to last page
         if (comicHistory && comicHistory.chapter_id === chapter.value?.id && comicHistory.last_page) {
           await nextTick()
           scrollToPage(comicHistory.last_page)
@@ -588,7 +649,7 @@ async function checkAndScrollToPage() {
         }
       }
     } catch (error) {
-      // Silent fail - user might not have permission
+      // Silent fail
     }
   }
 }
@@ -598,7 +659,14 @@ function scrollToPage(pageNumber: number) {
     const pageIndex = pageNumber - 1
     const pageEl = pageRefs.value[pageIndex]
     if (pageEl) {
-      pageEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      // Scroll window to page
+      const rect = pageEl.getBoundingClientRect()
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      const targetY = rect.top + scrollTop - (window.innerHeight / 2) + (rect.height / 2)
+      window.scrollTo({
+        top: targetY,
+        behavior: 'smooth'
+      })
       currentPage.value = pageNumber
     }
   } else {
@@ -650,4 +718,5 @@ function handleImageError(event: Event) {
   scrollbar-width: none;
 }
 </style>
+
 
