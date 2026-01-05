@@ -168,7 +168,6 @@ const handleIframeLoad = () => {
     }
   } catch (error) {
     // Cross-origin restrictions - this is expected
-    console.log('Cannot access iframe content (cross-origin)')
   }
 }
 

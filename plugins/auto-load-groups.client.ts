@@ -20,18 +20,14 @@ export default defineNuxtPlugin({
         const { useAuthStore } = await import('@/stores/auth')
         const authStore = useAuthStore()
         if (!authStore.isAuthenticated) {
-          console.log('[AutoLoadGroups] User chưa đăng nhập, bỏ qua')
           return
         }
 
         // Kiểm tra xem đã có groups trong localStorage chưa
         const storedGroupId = localStorage.getItem('selected_group_id')
         if (storedGroupId) {
-          console.log('[AutoLoadGroups] Đã có group_id trong localStorage:', storedGroupId)
           return
         }
-
-        console.log('[AutoLoadGroups] Bắt đầu flow mới: GET /api/user/groups → Auto-select')
 
         // Flow mới: Chỉ cần gọi GET /api/user/groups
         const { initializeUserGroups } = await import('@/composables/group/useGroupUtils')
@@ -39,9 +35,6 @@ export default defineNuxtPlugin({
 
         if (groups.length > 0) {
           const selectedGroupId = localStorage.getItem('selected_group_id')
-          console.log('[AutoLoadGroups] ✅ Đã load', groups.length, 'groups')
-          console.log('[AutoLoadGroups] ✅ Group ID đã chọn:', selectedGroupId)
-          console.log('[AutoLoadGroups] ✅ Từ bây giờ, các API khác có thể sử dụng X-Group-Id header')
         } else {
           console.warn('[AutoLoadGroups] ⚠️ Không có groups nào được trả về')
         }

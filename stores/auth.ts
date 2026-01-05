@@ -146,7 +146,6 @@ export const useAuthStore = defineStore('auth', () => {
           try {
             const { initializeUserGroups } = await import('@/composables/group/useGroupUtils')
             await initializeUserGroups()
-            console.log('[Auth] Đã khởi tạo groups sau khi login')
           } catch (groupError) {
             console.error('[Auth] Lỗi khi khởi tạo groups:', groupError)
             // Không throw error để không block login flow

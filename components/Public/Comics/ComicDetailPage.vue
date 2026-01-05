@@ -503,19 +503,13 @@ const hasChildRoute = computed(() => {
 // Load data
 onMounted(async () => {
   const path = route.path
-  console.log('=== COMIC DETAIL PAGE MOUNTED ===')
-  console.log('Route path:', path)
-  console.log('Route params:', route.params)
-  console.log('Has child route:', hasChildRoute.value)
   
   // Nếu có route con (ví dụ: /chapters/265), không load comic detail
   // Route con sẽ tự load data cần thiết
   if (hasChildRoute.value) {
-    console.log('Child route detected, skipping comic detail load')
     return
   }
   
-  console.log('Loading comic data for slug:', route.params.slug)
   await Promise.all([
     loadComic(),
     loadChapters(),
@@ -527,7 +521,6 @@ async function loadComic() {
   loading.value = true
   try {
     const slug = route.params.slug as string
-    console.log('Loading comic with slug:', slug)
     
     // Check if slug contains /chapters/ - if so, this is wrong route
     if (slug.includes('/chapters/')) {
@@ -536,7 +529,6 @@ async function loadComic() {
     }
     
     const response = await apiClient.get(publicEndpoints.comics.showBySlug(slug))
-    console.log('Comic API response:', response.data)
     if (response.data?.success) {
       comic.value = response.data.data
     }
@@ -668,16 +660,13 @@ async function handleChapterClick(event: Event, chapterId: number) {
     return
   }
   const url = `/home/comics/${comic.value.slug}/chapters/${chapterId}`
-  console.log('Clicking chapter link, navigating to:', url, 'Chapter ID:', chapterId)
   try {
     await navigateTo(url)
-    console.log('Navigation successful to:', url)
   } catch (err: any) {
     console.error('Navigation error:', err)
     // Fallback to router.push
     try {
       await router.push(url)
-      console.log('Fallback navigation successful to:', url)
     } catch (err2) {
       console.error('Fallback navigation also failed:', err2)
     }
@@ -690,16 +679,13 @@ async function handleRowClick(chapterId: number) {
     return
   }
   const url = `/home/comics/${comic.value.slug}/chapters/${chapterId}`
-  console.log('Row clicked, navigating to chapter:', url, 'Chapter ID:', chapterId)
   try {
     await navigateTo(url)
-    console.log('Navigation successful to:', url)
   } catch (err: any) {
     console.error('Navigation error:', err)
     // Fallback to router.push
     try {
       await router.push(url)
-      console.log('Fallback navigation successful to:', url)
     } catch (err2) {
       console.error('Fallback navigation also failed:', err2)
     }
@@ -712,7 +698,6 @@ function goToChapter(chapterId: number) {
     return
   }
   const url = `/home/comics/${comic.value.slug}/chapters/${chapterId}`
-  console.log('Navigating to chapter:', url)
   router.push(url)
 }
 

@@ -106,11 +106,8 @@
         class="fixed top-0 left-0 right-0 h-20 z-40"
       ></div>
 
-      <!-- Pages - Padding tự động điều chỉnh khi header ẩn -->
-      <div :class="[
-        'transition-all duration-300',
-        showHeader ? 'pt-16' : 'pt-0'
-      ]">
+      <!-- Pages - Không có padding, ảnh bắt đầu từ đầu trang -->
+      <div class="w-full">
         <!-- Loading Pages -->
         <div v-if="pagesLoading" class="flex items-center justify-center min-h-[60vh]">
           <div class="text-gray-700 text-center">
@@ -275,11 +272,6 @@ const comicId = computed(() => chapter.value?.comic_id || chapter.value?.comic?.
 
 // Load data
 onMounted(async () => {
-  console.log('=== CHAPTER READER MOUNTED ===')
-  console.log('Route path:', route.path)
-  console.log('Chapter Index:', chapterIndex.value)
-  console.log('Comic Slug:', comicSlug.value)
-  
   // Setup keyboard navigation
   window.addEventListener('keydown', handleKeyPress)
   
@@ -321,6 +313,18 @@ watch(() => readingMode.value, (newMode) => {
     showHeader.value = true
   }
 })
+
+// Watch chapter và comic để update SEO khi data thay đổi
+watch([chapter, comic], ([newChapter, newComic]) => {
+  if (newChapter && newComic) {
+    useSeo({
+      title: `${newChapter.title || `Chương ${newChapter.chapter_index}`} - ${newComic.title}`,
+      description: `Đọc ${newChapter.title || `Chương ${newChapter.chapter_index}`} của ${newComic.title}`,
+      image: newComic.cover_image,
+      type: 'article'
+    })
+  }
+}, { immediate: true })
 
 async function loadData() {
   await Promise.all([

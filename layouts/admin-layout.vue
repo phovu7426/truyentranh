@@ -168,12 +168,10 @@ const initializeAdminGroup = async () => {
     const storedGroupIdBefore = getGroupId()
     
     // Luôn gọi API group khi vào admin
-    console.log('[AdminLayout] Đang gọi API để lấy danh sách groups...')
     await fetchMyGroups()
 
     // Nếu đã có group được lưu từ trước → sử dụng group đó, không cần switch
     if (storedGroupIdBefore) {
-      console.log('[AdminLayout] Đã có group được chọn từ trước, sử dụng group:', storedGroupIdBefore)
       return
     }
 
@@ -184,7 +182,6 @@ const initializeAdminGroup = async () => {
     if (groups.length > 0) {
       const firstGroup = groups[0]
       if (firstGroup) {
-        console.log('[AdminLayout] Chưa có group được chọn, gọi API switch với group đầu tiên:', firstGroup.id)
         await switchGroup(firstGroup.id)
       }
     }

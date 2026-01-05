@@ -144,7 +144,6 @@ const selectedLocation = ref('')
 // Methods
 function handleLocationChange() {
   // Reset any state if needed when location changes
-  console.log('Location changed to:', selectedLocation.value)
 }
 </script>
 
