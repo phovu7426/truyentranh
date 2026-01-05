@@ -63,6 +63,7 @@
               v-if="chapter.id"
               :chapter-id="chapter.id"
               :page-number="currentPage"
+              :initial-bookmark="initialBookmark"
             />
 
             <!-- Settings -->
@@ -244,7 +245,8 @@ const { apiClient } = useGlobalApiClient()
 const authStore = useAuthStore()
 
 // State
-const loading = ref(false)
+// Bắt đầu ở trạng thái loading để tránh nháy "Không tìm thấy chương" trước khi dữ liệu được load
+const loading = ref(true)
 const pagesLoading = ref(false)
 const pagesError = ref<string | null>(null)
 const chapter = ref<any>(null)
@@ -259,11 +261,13 @@ const currentPage = ref(1)
 const viewTracked = ref(false)
 const pageRefs = ref<(HTMLElement | null)[]>([])
 const historyUpdatePending = ref(false)
+const readingHistoryCreated = ref(false)
 const verticalScrollContainer = ref<HTMLElement | null>(null)
 const horizontalScrollContainer = ref<HTMLElement | null>(null)
 const showHeader = ref(true)
 const lastScrollY = ref(0)
 const scrollTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
+const initialBookmark = ref<any | null>(null)
 
 const comicSlug = computed(() => route.params.slug as string)
 const chapterIndex = computed(() => (route.params as any).chapter_index as string)
@@ -289,6 +293,7 @@ onUnmounted(() => {
 watch(() => (route.params as any).chapter_index, async (newIndex, oldIndex) => {
   if (newIndex !== oldIndex) {
     // Reset state
+    loading.value = true
     chapter.value = null
     comic.value = null
     pages.value = []
@@ -347,12 +352,11 @@ async function loadData() {
     
     // Track view
     trackView()
+    // Lưu lịch sử đọc (chỉ theo chapter, gọi 1 lần khi vào chapter)
+    await updateReadingHistory()
     
-    // Check for page query param or bookmark
+    // Check for page query param hoặc bookmark (không gọi lại reading-history)
     await checkAndScrollToPage()
-    
-    // Update reading history
-    updateReadingHistory()
   }
 }
 
@@ -503,10 +507,6 @@ function handleKeyPress(event: KeyboardEvent) {
   }
 }
 
-const handleHorizontalScrollDebounced = debounce(() => {
-  updateReadingHistory()
-}, 2000)
-
 function handleHorizontalScroll(event: Event) {
   const container = event.target as HTMLElement
   if (!container || pages.value.length === 0) return
@@ -519,7 +519,6 @@ function handleHorizontalScroll(event: Event) {
   
   if (newPage !== currentPage.value) {
     currentPage.value = newPage
-    handleHorizontalScrollDebounced()
   }
 }
 
@@ -528,10 +527,6 @@ function setPageRef(el: HTMLElement | null, index: number) {
     pageRefs.value[index] = el
   }
 }
-
-const handleVerticalScrollDebounced = debounce(() => {
-  updateReadingHistory()
-}, 2000)
 
 function handleVerticalScroll(event: Event) {
   // Legacy handler for container scroll (not used anymore but kept for compatibility)
@@ -601,7 +596,6 @@ function handleWindowScroll() {
   const newPage = Math.min(Math.max(closestIndex + 1, 1), pages.value.length)
   if (newPage !== currentPage.value) {
     currentPage.value = newPage
-    handleVerticalScrollDebounced()
   }
 }
 
@@ -621,32 +615,19 @@ async function checkAndScrollToPage() {
     }
   }
   
-  // Check for reading history (only if authenticated)
-  if (authStore.isAuthenticated && comicId.value) {
-    try {
-      const response = await apiClient.get(userEndpoints.readingHistory.list)
-      if (response.data?.success) {
-        const history = response.data.data || []
-        const comicHistory = history.find((h: any) => h.comic_id === comicId.value)
-        
-        if (comicHistory && comicHistory.chapter_id === chapter.value?.id && comicHistory.last_page) {
-          await nextTick()
-          scrollToPage(comicHistory.last_page)
-          return
-        }
-      }
-    } catch (error) {
-      // Silent fail
-    }
-  }
-  
   // Check for bookmark (only if authenticated)
   if (authStore.isAuthenticated && chapter.value) {
     try {
-      const response = await apiClient.get(userEndpoints.bookmarks.list)
+      const response = await apiClient.get(userEndpoints.bookmarks.list, {
+        params: {
+          comic_id: comicId.value,
+          chapter_id: chapter.value.id
+        }
+      })
       if (response.data?.success) {
-        const bookmarks = response.data.data || []
-        const bookmark = bookmarks.find((b: any) => b.chapter_id === chapter.value?.id)
+        const data = response.data.data
+        const bookmark = Array.isArray(data) ? (data[0] || null) : data
+        initialBookmark.value = bookmark
         if (bookmark && bookmark.page_number) {
           await nextTick()
           scrollToPage(bookmark.page_number)
@@ -687,7 +668,14 @@ function scrollToPage(pageNumber: number) {
 }
 
 async function updateReadingHistory() {
-  if (!authStore.isAuthenticated || !comicId.value || !chapter.value?.id || historyUpdatePending.value) {
+  // Chỉ lưu 1 lần / chapter, không lưu last_page nữa
+  if (
+    readingHistoryCreated.value ||
+    !authStore.isAuthenticated ||
+    !comicId.value ||
+    !chapter.value?.id ||
+    historyUpdatePending.value
+  ) {
     return
   }
 
@@ -696,9 +684,9 @@ async function updateReadingHistory() {
   try {
     await apiClient.post(userEndpoints.readingHistory.create, {
       comic_id: comicId.value,
-      chapter_id: chapter.value.id,
-      last_page: currentPage.value
+      chapter_id: chapter.value.id
     })
+    readingHistoryCreated.value = true
   } catch (error) {
     // Silent fail - reading history is optional
   } finally {

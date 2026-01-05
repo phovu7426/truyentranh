@@ -34,9 +34,15 @@ import { useGlobalApiClient } from '@/composables/api'
 import { userEndpoints } from '@/api/endpoints'
 import { useToast } from '@/composables/ui/useToast'
 
+interface Bookmark {
+  id: number
+  page_number: number
+}
+
 interface Props {
   chapterId: number
   pageNumber: number
+  initialBookmark?: Bookmark | null
 }
 
 const props = defineProps<Props>()
@@ -47,35 +53,13 @@ const authStore = useAuthStore()
 
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 const saving = ref(false)
-const currentBookmark = ref<any>(null)
+const currentBookmark = ref<Bookmark | null>(props.initialBookmark ?? null)
 
 const isBookmarked = computed(() => !!currentBookmark.value)
 
-onMounted(async () => {
-  if (isAuthenticated.value) {
-    await checkBookmark()
-  }
+onMounted(() => {
+  // Trạng thái bookmark ban đầu được truyền từ ChapterReader qua props.initialBookmark
 })
-
-watch(() => [props.chapterId, props.pageNumber], async () => {
-  if (isAuthenticated.value) {
-    await checkBookmark()
-  }
-})
-
-async function checkBookmark() {
-  try {
-    const response = await apiClient.get(userEndpoints.bookmarks.list)
-    if (response.data?.success) {
-      const bookmarks = response.data.data || []
-      currentBookmark.value = bookmarks.find(
-        (b: any) => b.chapter_id === props.chapterId && b.page_number === props.pageNumber
-      ) || null
-    }
-  } catch (error) {
-    // Silent fail
-  }
-}
 
 async function handleToggleBookmark() {
   if (!isAuthenticated.value) return
@@ -95,7 +79,7 @@ async function handleToggleBookmark() {
         page_number: props.pageNumber
       })
       if (response.data?.success) {
-        currentBookmark.value = response.data.data
+        currentBookmark.value = response.data.data as Bookmark
         showSuccess('Đã đánh dấu trang này')
       }
     }
