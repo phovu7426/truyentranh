@@ -278,7 +278,7 @@ function resetForm() {
 // Sử dụng GET /api/user/contexts (API vẫn hoạt động bình thường)
 async function loadContexts() {
   try {
-    const response = await apiClient.get('/api/user/contexts')
+    const response = await apiClient.get('/api/admin/contexts')
     // Response format: array trực tiếp [...]
     let contextsData: any[] = []
     if (Array.isArray(response.data)) {

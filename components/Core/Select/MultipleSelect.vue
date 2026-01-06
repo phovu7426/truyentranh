@@ -38,7 +38,7 @@
         >
           <input 
             type="checkbox" 
-            :checked="modelValue.includes(option.value)"
+            :checked="isSelected(option.value)"
             class="mr-2 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
             readonly
           />
@@ -80,10 +80,21 @@ const emit = defineEmits(['update:modelValue'])
 
 const showDropdown = ref(false)
 
+// Helper function để so sánh giá trị (hỗ trợ cả số và string)
+function isValueEqual(a, b) {
+  // Normalize cả hai về string để so sánh
+  return String(a) === String(b)
+}
+
+// Check if option is selected
+function isSelected(value) {
+  return props.modelValue.some(item => isValueEqual(item, value))
+}
+
 // Computed để lấy selected items với label
 const selectedItems = computed(() => {
   return props.modelValue.map(value => {
-    const option = props.options.find(opt => opt.value == value)
+    const option = props.options.find(opt => isValueEqual(opt.value, value))
     return {
       value: value,
       label: option ? option.label : value
@@ -99,7 +110,8 @@ function toggleDropdown() {
 // Toggle item selection
 function toggleItem(value) {
   const newValue = [...props.modelValue]
-  const index = newValue.indexOf(value)
+  // Tìm index sử dụng loose comparison
+  const index = newValue.findIndex(item => isValueEqual(item, value))
   
   if (index > -1) {
     newValue.splice(index, 1)
@@ -112,7 +124,7 @@ function toggleItem(value) {
 
 // Remove item
 function removeItem(value) {
-  const newValue = props.modelValue.filter(item => item !== value)
+  const newValue = props.modelValue.filter(item => !isValueEqual(item, value))
   emit('update:modelValue', newValue)
 }
 

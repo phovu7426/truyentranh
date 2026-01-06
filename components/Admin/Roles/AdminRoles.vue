@@ -246,9 +246,7 @@ const {
   handleDelete,
   getSerialNumber,
   showSuccess,
-  showError,
-  openModal,
-  closeModal
+  showError
 } = useAdminListPage({
   endpoints: {
     list: adminEndpoints.roles.list,
@@ -280,6 +278,21 @@ const { apiClient } = useGlobalApiClient()
 
 const statusEnums = ref([])
 const enumsLoaded = ref(false)
+
+// Helper functions for custom modal
+const openModal = (modalName: string, item?: any) => {
+  modals.value[modalName] = true
+  if (item !== undefined) {
+    selectedRole.value = item
+  }
+  clearApiErrors()
+}
+
+const closeModal = (modalName: string) => {
+  modals.value[modalName] = false
+  selectedRole.value = null
+  clearApiErrors()
+}
 
 const openAssignPermissionsModal = (role: any) => {
   openModal('assignPermissions', role)
