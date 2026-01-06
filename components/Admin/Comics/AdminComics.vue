@@ -273,8 +273,6 @@ const {
   closeEditModal,
   openDeleteModal: confirmDelete,
   closeDeleteModal,
-  openModal,
-  closeModal,
   updateFilters,
   changePage,
   refresh,
@@ -322,6 +320,21 @@ const statusEnums = ref([
 ])
 const categoryEnums = ref([])
 const selectedComicForAction = ref<any>(null)
+
+// Helper functions for custom modal
+const openModal = (modalName: string, item?: any) => {
+  modals.value[modalName] = true
+  if (item !== undefined) {
+    selectedItem.value = item
+  }
+  clearApiErrors()
+}
+
+const closeModal = (modalName: string) => {
+  modals.value[modalName] = false
+  selectedItem.value = null
+  clearApiErrors()
+}
 
 onMounted(async () => {
   await fetchCategoryEnums()
