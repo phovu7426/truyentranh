@@ -135,13 +135,21 @@ const modalVisible = computed({
 const defaultValues = computed(() => {
   const obj = props.comic || {}
   
+  // Ưu tiên dùng category_ids nếu có, nếu không thì map từ categories
+  let categoryIds: number[] = []
+  if (obj.category_ids && Array.isArray(obj.category_ids) && obj.category_ids.length > 0) {
+    categoryIds = obj.category_ids
+  } else if (obj.categories && Array.isArray(obj.categories) && obj.categories.length > 0) {
+    categoryIds = obj.categories.map((c: any) => c.id)
+  }
+  
   return {
     title: obj.title || '',
     slug: obj.slug || '',
     description: obj.description || '',
     author: obj.author || '',
     status: obj.status || 'draft',
-    category_ids: obj.categories ? obj.categories.map((c: any) => c.id) : [],
+    category_ids: categoryIds,
     ...obj
   }
 })
@@ -172,7 +180,7 @@ const categorySearchApi = computed(() => {
   return adminEndpoints.comicCategories.list
 })
 
-function handleSubmit(form) {
+function handleSubmit(form: any) {
   // Nếu slug rỗng, không gửi lên (để API tự sinh)
   const formData = { ...form }
   if (!formData.slug || formData.slug.trim() === '') {
