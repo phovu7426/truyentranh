@@ -52,10 +52,20 @@
       <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
         {{ comic.title }}
       </h3>
-      
-      <p v-if="comic.author" class="text-sm text-gray-600 mb-2">
-        {{ comic.author }}
-      </p>
+
+      <!-- Last Chapter -->
+      <div v-if="comic.last_chapter" class="mb-2">
+        <NuxtLink
+          :to="`/home/comics/${comic.slug}/chapters/${comic.last_chapter.id}`"
+          class="text-blue-600 hover:text-blue-700 font-medium text-sm block truncate"
+          @click.stop
+        >
+          {{ comic.last_chapter.title || `Chương ${comic.last_chapter.chapter_index}` }}
+        </NuxtLink>
+        <span v-if="comic.last_chapter.created_at" class="text-xs text-gray-500">
+          {{ formatDate(comic.last_chapter.created_at) }}
+        </span>
+      </div>
 
       <!-- Categories -->
       <div v-if="comic.categories && comic.categories.length > 0" class="flex flex-wrap gap-1 mb-2">
@@ -94,6 +104,12 @@ interface Props {
       chapter_count?: number
       average_rating?: number
     }
+    last_chapter?: {
+      id: number
+      title?: string
+      chapter_index: number
+      created_at?: string
+    }
   }
 }
 
@@ -112,6 +128,22 @@ function formatNumber(num: number): string {
 function handleImageError(event: Event) {
   const img = event.target as HTMLImageElement
   img.style.display = 'none'
+}
+
+function formatDate(dateString: string): string {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  const now = new Date()
+  const diff = now.getTime() - date.getTime()
+  const minutes = Math.floor(diff / 60000)
+  const hours = Math.floor(diff / 3600000)
+  const days = Math.floor(diff / 86400000)
+
+  if (minutes < 1) return 'Vừa xong'
+  if (minutes < 60) return `${minutes} phút trước`
+  if (hours < 24) return `${hours} giờ trước`
+  if (days < 7) return `${days} ngày trước`
+  return date.toLocaleDateString('vi-VN')
 }
 </script>
 

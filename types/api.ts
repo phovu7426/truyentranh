@@ -133,6 +133,7 @@ export const publicEndpoints = {
     show: (id: Id) => `/api/public/banners/${id}`,
     getByLocation: (locationCode: string) => `/api/public/banners/location/${locationCode}`,
   },
+  homepage: '/api/public/homepage',
   comicCategories: {
     list: '/api/public/comic-categories',
   },

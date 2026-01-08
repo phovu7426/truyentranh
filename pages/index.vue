@@ -28,7 +28,7 @@
           </div>
         </div>
 
-        <div v-if="featuredComicsLoading" class="bg-white rounded-lg shadow-md p-6 animate-pulse">
+        <div v-if="loading" class="bg-white rounded-lg shadow-md p-6 animate-pulse">
           <div class="flex space-x-6">
             <div class="w-32 h-48 bg-gray-200 rounded"></div>
             <div class="flex-1">
@@ -70,6 +70,19 @@
                   class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
                 >
                   {{ category.name }}
+                </span>
+              </div>
+              <!-- Last Chapter -->
+              <div v-if="comic.last_chapter" class="mb-4">
+                <NuxtLink
+                  :to="`/home/comics/${comic.slug}/chapters/${comic.last_chapter.id}`"
+                  class="text-blue-600 hover:text-blue-700 font-medium text-sm block"
+                  @click.stop
+                >
+                  {{ comic.last_chapter.title || `Chương ${comic.last_chapter.chapter_index}` }}
+                </NuxtLink>
+                <span v-if="comic.last_chapter.created_at" class="text-xs text-gray-500">
+                  {{ formatDate(comic.last_chapter.created_at) }}
                 </span>
               </div>
               <div class="flex items-center space-x-4 text-sm text-gray-500">
@@ -116,7 +129,7 @@
 
       <!-- Comics Grid -->
       <section class="mb-8">
-        <div v-if="trendingComicsLoading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           <div v-for="i in 12" :key="i" class="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
             <div class="aspect-[3/4] bg-gray-200"></div>
             <div class="p-3">
@@ -140,7 +153,7 @@
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-bold text-gray-900">Mới Cập Nhật</h2>
           <NuxtLink
-            to="/home/comics"
+            to="/home/comics?sort_by=updated_at&sort_order=DESC"
             class="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center"
           >
             Xem tất cả
@@ -150,7 +163,7 @@
           </NuxtLink>
         </div>
 
-        <div v-if="latestChaptersLoading" class="bg-white rounded-lg shadow-md p-4 space-y-3">
+        <div v-if="loading" class="bg-white rounded-lg shadow-md p-4 space-y-3">
           <div v-for="i in 10" :key="i" class="flex items-center space-x-4 animate-pulse">
             <div class="w-16 h-24 bg-gray-200 rounded flex-shrink-0"></div>
             <div class="flex-1">
@@ -161,32 +174,34 @@
           </div>
         </div>
 
-        <div v-else-if="latestChapters.length > 0" class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div v-else-if="recentUpdateComics.length > 0" class="bg-white rounded-lg shadow-md overflow-hidden">
           <div
-            v-for="chapter in latestChapters.slice(0, 10)"
-            :key="chapter.id"
+            v-for="comic in recentUpdateComics.slice(0, 10)"
+            :key="comic.id"
             class="flex items-center space-x-4 p-4 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0 cursor-pointer group"
-            @click="goToChapter(chapter)"
+            @click="goToComic(comic.slug)"
           >
             <img
-              :src="chapter.comic?.cover_image || '/default.svg'"
-              :alt="chapter.comic?.title"
+              :src="comic.cover_image || '/default.svg'"
+              :alt="comic.title"
               class="w-16 h-24 object-cover rounded flex-shrink-0"
               @error="handleImageError"
             />
             <div class="flex-1 min-w-0">
               <h3 class="font-semibold text-gray-900 mb-1 truncate group-hover:text-blue-600 transition-colors">
-                {{ chapter.comic?.title }}
+                {{ comic.title }}
               </h3>
               <NuxtLink
-                :to="`/home/comics/${chapter.comic?.slug}/chapters/${chapter.id}`"
+                v-if="comic.last_chapter"
+                :to="`/home/comics/${comic.slug}/chapters/${comic.last_chapter.id}`"
                 class="text-blue-600 hover:text-blue-700 font-medium text-sm block mb-1"
+                @click.stop
               >
-                {{ chapter.title || `Chương ${chapter.chapter_index}` }}
+                {{ comic.last_chapter.title || `Chương ${comic.last_chapter.chapter_index}` }}
               </NuxtLink>
               <div class="flex items-center space-x-3 text-xs text-gray-500">
-                <span>{{ formatDate(chapter.created_at) }}</span>
-                <span v-if="chapter.comic?.author">{{ chapter.comic.author }}</span>
+                <span v-if="comic.last_chapter?.created_at">{{ formatDate(comic.last_chapter.created_at) }}</span>
+                <span v-if="comic.author">{{ comic.author }}</span>
               </div>
             </div>
             <div class="flex items-center space-x-2 text-sm text-gray-600">
@@ -195,13 +210,13 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                 </svg>
-                {{ formatNumber(chapter.comic?.stats?.view_count || 0) }}
+                {{ formatNumber(comic.stats?.view_count || 0) }}
               </span>
               <span class="flex items-center">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                {{ chapter.comic?.stats?.chapter_count || 0 }}
+                {{ comic.stats?.chapter_count || 0 }}
               </span>
             </div>
           </div>
@@ -223,7 +238,7 @@
           </NuxtLink>
         </div>
 
-        <div v-if="popularComicsLoading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           <div v-for="i in 12" :key="i" class="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
             <div class="aspect-[3/4] bg-gray-200"></div>
             <div class="p-3">
@@ -257,7 +272,7 @@
           </NuxtLink>
         </div>
 
-        <div v-if="newestComicsLoading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           <div v-for="i in 12" :key="i" class="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
             <div class="aspect-[3/4] bg-gray-200"></div>
             <div class="p-3">
@@ -305,141 +320,45 @@ useSeo({
 })
 
 // State
-const featuredComics = ref<any[]>([])
+const featuredComics = ref<any[]>([]) // top_viewed_comics
 const trendingComics = ref<any[]>([])
 const popularComics = ref<any[]>([])
 const newestComics = ref<any[]>([])
-const latestChapters = ref<any[]>([])
+const recentUpdateComics = ref<any[]>([]) // Comics có chapter mới cập nhật
 const categories = ref<any[]>([])
 const currentFeaturedIndex = ref(0)
 
-// Loading states
-const featuredComicsLoading = ref(false)
-const trendingComicsLoading = ref(false)
-const popularComicsLoading = ref(false)
-const newestComicsLoading = ref(false)
-const latestChaptersLoading = ref(false)
-const categoriesLoading = ref(false)
+// Loading state - chỉ cần một loading state cho tất cả
+const loading = ref(false)
 
-// Load data
+// Load data - Gọi một API duy nhất
 onMounted(async () => {
-  await Promise.all([
-    loadFeaturedComics(),
-    loadTrendingComics(),
-    loadPopularComics(),
-    loadNewestComics(),
-    loadLatestChapters(),
-    loadCategories()
-  ])
+  await loadHomepageData()
 })
 
-async function loadFeaturedComics() {
-  featuredComicsLoading.value = true
+// Load tất cả dữ liệu từ một API duy nhất
+async function loadHomepageData() {
+  loading.value = true
   try {
-    const response = await apiClient.get(publicEndpoints.comics.list, {
-      params: {
-        status: 'published',
-        limit: 10,
-        sort_by: 'view_count',
-        sort_order: 'DESC'
-      }
-    })
+    const response = await apiClient.get(publicEndpoints.homepage)
+    
     if (response.data?.success) {
-      featuredComics.value = response.data.data || []
+      const data = response.data.data
+      
+      // Comics data - Structure mới: flat, không nested
+      featuredComics.value = data.top_viewed_comics || []
+      trendingComics.value = data.trending_comics || []
+      popularComics.value = data.popular_comics || []
+      newestComics.value = data.newest_comics || []
+      recentUpdateComics.value = data.recent_update_comics || []
+      
+      // Categories data
+      categories.value = data.comic_categories || []
     }
   } catch (error) {
-    console.error('Failed to load featured comics:', error)
+    console.error('Failed to load homepage data:', error)
   } finally {
-    featuredComicsLoading.value = false
-  }
-}
-
-async function loadTrendingComics() {
-  trendingComicsLoading.value = true
-  try {
-    const response = await apiClient.get(publicEndpoints.comics.trending, {
-      params: { limit: 30 }
-    })
-    if (response.data?.success) {
-      trendingComics.value = response.data.data || []
-    }
-  } catch (error) {
-    console.error('Failed to load trending comics:', error)
-  } finally {
-    trendingComicsLoading.value = false
-  }
-}
-
-async function loadPopularComics() {
-  popularComicsLoading.value = true
-  try {
-    const response = await apiClient.get(publicEndpoints.comics.popular, {
-      params: { limit: 30 }
-    })
-    if (response.data?.success) {
-      popularComics.value = response.data.data || []
-    }
-  } catch (error) {
-    console.error('Failed to load popular comics:', error)
-  } finally {
-    popularComicsLoading.value = false
-  }
-}
-
-async function loadNewestComics() {
-  newestComicsLoading.value = true
-  try {
-    const response = await apiClient.get(publicEndpoints.comics.newest, {
-      params: { limit: 30 }
-    })
-    if (response.data?.success) {
-      newestComics.value = response.data.data || []
-    }
-  } catch (error) {
-    console.error('Failed to load newest comics:', error)
-  } finally {
-    newestComicsLoading.value = false
-  }
-}
-
-async function loadLatestChapters() {
-  latestChaptersLoading.value = true
-  try {
-    const response = await apiClient.get(publicEndpoints.chapters.list, {
-      params: {
-        status: 'published',
-        limit: 10,
-        sort_by: 'created_at',
-        sort_order: 'DESC',
-        include: 'comic'
-      }
-    })
-    if (response.data?.success) {
-      latestChapters.value = response.data.data || []
-    }
-  } catch (error) {
-    console.error('Failed to load latest chapters:', error)
-  } finally {
-    latestChaptersLoading.value = false
-  }
-}
-
-async function loadCategories() {
-  categoriesLoading.value = true
-  try {
-    const response = await apiClient.get(publicEndpoints.comicCategories.list, {
-      params: {
-        status: 'active',
-        limit: 20
-      }
-    })
-    if (response.data?.success) {
-      categories.value = response.data.data || []
-    }
-  } catch (error) {
-    console.error('Failed to load categories:', error)
-  } finally {
-    categoriesLoading.value = false
+    loading.value = false
   }
 }
 
@@ -466,11 +385,7 @@ function goToComic(slug: string) {
   router.push(`/home/comics/${slug}`)
 }
 
-function goToChapter(chapter: any) {
-  if (chapter.comic?.slug) {
-    router.push(`/home/comics/${chapter.comic.slug}/chapters/${chapter.id}`)
-  }
-}
+// Function này không còn cần thiết vì đã chuyển sang hiển thị comics thay vì chapters
 
 function formatNumber(num: number): string {
   if (num >= 1000000) {

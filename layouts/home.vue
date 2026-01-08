@@ -106,8 +106,8 @@
             <div class="flex items-center space-x-8">
               <!-- Dynamic Navigation Menu -->
               <template v-for="item in navigationItems" :key="item.name">
-                <!-- Menu item có children hoặc dynamic children (dropdown) -->
-                <div v-if="item.children || item.hasDynamicChildren" class="relative group">
+                <!-- Menu item có children (dropdown) -->
+                <div v-if="item.children" class="relative group">
                   <button 
                     class="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors font-medium py-2"
                     :class="{ 'text-blue-600': isActiveMenuItem(item) }"
@@ -121,61 +121,16 @@
                   <!-- Dropdown Menu -->
                   <div class="absolute top-full left-0 mt-2 w-72 bg-white border border-gray-200 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden">
                     <div class="py-2">
-                      <!-- Link "Tất cả tin tức" nếu là menu Tin tức -->
+                      <!-- Static children -->
                       <NuxtLink 
-                        v-if="item.hasDynamicChildren"
-                        :to="item.path" 
-                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 border-b border-gray-100"
-                        :class="{ 'bg-gradient-to-r from-blue-50 to-purple-50 text-blue-600': isActiveMenuItem(item) }"
+                        v-for="child in item.children" 
+                        :key="child.name"
+                        :to="child.path" 
+                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200"
                       >
-                        <span class="text-lg mr-3">{{ item.icon }}</span>
-                        <span class="font-medium">Tất cả tin tức</span>
+                        <span class="text-lg mr-3">{{ child.icon }}</span>
+                        <span>{{ child.name }}</span>
                       </NuxtLink>
-                      
-                      <!-- Dynamic Categories từ API -->
-                      <template v-if="item.hasDynamicChildren && postCategories.length > 0">
-                        <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          Danh mục
-                        </div>
-                        <NuxtLink 
-                          v-for="category in postCategories.slice(0, 8)" 
-                          :key="category.id"
-                          :to="`/home/posts/category/${category.slug}`" 
-                          class="flex items-center px-4 py-2.5 text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 group/item"
-                        >
-                          <div class="w-2 h-2 rounded-full bg-blue-400 mr-3 group-hover/item:bg-blue-600 transition-colors"></div>
-                          <span class="flex-1">{{ category.name }}</span>
-                          <svg class="w-4 h-4 text-gray-400 opacity-0 group-hover/item:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                          </svg>
-                        </NuxtLink>
-                      </template>
-                      
-                      <!-- Loading state cho categories -->
-                      <div v-if="item.hasDynamicChildren && categoriesLoading" class="px-4 py-4">
-                        <div class="flex items-center space-x-2">
-                          <div class="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                          <span class="text-sm text-gray-500">Đang tải...</span>
-                        </div>
-                      </div>
-                      
-                      <!-- Empty state cho categories -->
-                      <div v-if="item.hasDynamicChildren && !categoriesLoading && postCategories.length === 0" class="px-4 py-4 text-sm text-gray-500 text-center">
-                        Chưa có danh mục
-                      </div>
-                      
-                      <!-- Static children (cho các menu khác) -->
-                      <template v-if="item.children && !item.hasDynamicChildren">
-                        <NuxtLink 
-                          v-for="child in item.children" 
-                          :key="child.name"
-                          :to="child.path" 
-                          class="flex items-center px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200"
-                        >
-                          <span class="text-lg mr-3">{{ child.icon }}</span>
-                          <span>{{ child.name }}</span>
-                        </NuxtLink>
-                      </template>
                     </div>
                   </div>
                 </div>
@@ -269,7 +224,7 @@
             <div class="space-y-1">
               <template v-for="item in navigationItems" :key="`m-${item.name}`">
                 <!-- Has children / dynamic -->
-                <div v-if="item.children || item.hasDynamicChildren" class="rounded-xl">
+                <div v-if="item.children" class="rounded-xl">
                   <button
                     type="button"
                     class="w-full flex items-center justify-between px-3 py-3 rounded-xl text-left text-gray-800 hover:bg-gray-100 transition-colors min-h-[48px]"
@@ -293,63 +248,19 @@
                   </button>
 
                   <div v-show="expandedMobileMenus.includes(item.name)" class="mt-1 mb-2 ml-3 border-l border-gray-200 pl-3 space-y-1">
-                    <!-- Dynamic (Tin tức) -->
-                    <template v-if="item.hasDynamicChildren">
-                      <NuxtLink
-                        :to="item.path"
-                        :prefetch="false"
-                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors min-h-[44px]"
-                        :class="{ 'bg-blue-50 text-blue-700': isActiveMenuItem(item) }"
-                        @click="closeMobileMenu"
-                      >
-                        <span class="text-lg">{{ item.icon }}</span>
-                        <span class="font-medium">Tất cả tin tức</span>
-                      </NuxtLink>
-
-                      <div class="px-3 pt-2 pb-1 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                        Danh mục
-                      </div>
-
-                      <div v-if="categoriesLoading" class="px-3 py-3 text-sm text-gray-600 flex items-center gap-2">
-                        <div class="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                        <span>Đang tải...</span>
-                      </div>
-
-                      <div v-else-if="postCategories.length === 0" class="px-3 py-3 text-sm text-gray-500">
-                        Chưa có danh mục
-                      </div>
-
-                      <template v-else>
-                        <NuxtLink
-                          v-for="category in postCategories.slice(0, 12)"
-                          :key="`m-cat-${category.id}`"
-                          :to="`/home/posts/category/${category.slug}`"
-                          :prefetch="false"
-                          class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors min-h-[44px]"
-                          :class="{ 'bg-blue-50 text-blue-700': route.path === `/home/posts/category/${category.slug}` }"
-                          @click="closeMobileMenu"
-                        >
-                          <span class="w-2 h-2 rounded-full bg-blue-400"></span>
-                          <span class="truncate">{{ category.name }}</span>
-                        </NuxtLink>
-                      </template>
-                    </template>
-
                     <!-- Static children -->
-                    <template v-else>
-                      <NuxtLink
-                        v-for="child in item.children"
-                        :key="`m-child-${child.name}-${child.path}`"
-                        :to="child.path"
-                        :prefetch="false"
-                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors min-h-[44px]"
-                        :class="{ 'bg-blue-50 text-blue-700': route.path === child.path }"
-                        @click="closeMobileMenu"
-                      >
-                        <span class="text-lg">{{ child.icon }}</span>
-                        <span class="truncate">{{ child.name }}</span>
-                      </NuxtLink>
-                    </template>
+                    <NuxtLink
+                      v-for="child in item.children"
+                      :key="`m-child-${child.name}-${child.path}`"
+                      :to="child.path"
+                      :prefetch="false"
+                      class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors min-h-[44px]"
+                      :class="{ 'bg-blue-50 text-blue-700': route.path === child.path }"
+                      @click="closeMobileMenu"
+                    >
+                      <span class="text-lg">{{ child.icon }}</span>
+                      <span class="truncate">{{ child.name }}</span>
+                    </NuxtLink>
                   </div>
                 </div>
 
@@ -539,10 +450,6 @@ const isAdminRoute = computed(() => {
   return route.path.startsWith('/admin')
 })
 
-// State cho post categories
-const postCategories = ref<any[]>([])
-const categoriesLoading = ref(false)
-
 // Mobile menu state (SSR-safe)
 const isClient = ref(false)
 const mobileMenuOpen = ref(false)
@@ -575,31 +482,9 @@ async function handleLogout() {
   await navigateTo('/auth/login')
 }
 
-// Hàm fetch post categories
-const fetchPostCategories = async () => {
-  categoriesLoading.value = true
-  try {
-    const response = await apiClient.get(publicEndpoints.postCategories.list, {
-      params: {
-        page: 1,
-        limit: 20,
-        status: 'active',
-        sort: 'sort_order:ASC'
-      }
-    })
-    postCategories.value = response.data?.data || []
-  } catch (error) {
-    console.error('Error fetching post categories:', error)
-    postCategories.value = []
-  } finally {
-    categoriesLoading.value = false
-  }
-}
-
 // Fetch categories khi component mount
 onMounted(() => {
   isClient.value = true
-  fetchPostCategories()
   document.addEventListener('keydown', handleEscape)
 })
 

@@ -110,6 +110,19 @@
                     <span v-else>{{ comic.translation_team.name || comic.translation_team }}</span>
                   </td>
                 </tr>
+                <tr v-if="comic.author">
+                  <td class="py-2 text-sm text-gray-600 font-medium">
+                    <div class="flex items-center">
+                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                      </svg>
+                      Tác giả
+                    </div>
+                  </td>
+                  <td class="py-2 text-sm text-gray-900">
+                    {{ comic.author }}
+                  </td>
+                </tr>
                 <tr>
                   <td class="py-2 text-sm text-gray-600 font-medium">
                     <div class="flex items-center">
@@ -348,81 +361,111 @@
       </div>
 
       <!-- Comments Section - Chỉ hiển thị khi KHÔNG có route con -->
-      <div v-if="!hasChildRoute" class="bg-white rounded-lg shadow-md p-6">
-        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-          <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div v-if="!hasChildRoute" class="bg-white rounded-xl shadow-lg p-6 lg:p-8">
+        <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+          <svg class="w-7 h-7 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
           </svg>
           {{ totalComments }} Bình luận
         </h3>
         
         <!-- Comment Input -->
-        <div class="mb-6 flex items-start space-x-3">
-          <div class="flex-1">
-            <textarea
-              v-model="newComment"
-              placeholder="Viết bình luận..."
-              rows="3"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            ></textarea>
-          </div>
-          <div class="flex flex-col space-y-2">
-            <button
-              @click="submitComment"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-              </svg>
-            </button>
-            <button
-              class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Comments List -->
-        <div v-if="commentsLoading" class="space-y-4">
-          <div v-for="i in 5" :key="i" class="flex space-x-4 animate-pulse">
-            <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
+        <div class="mb-8 bg-gray-50 rounded-xl p-4 border border-gray-200">
+          <div class="flex items-start space-x-4">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-white">
+              <img
+                v-if="authStore.user?.avatar"
+                :src="authStore.user.avatar"
+                :alt="authStore.user.name"
+                class="w-full h-full object-cover"
+                @error="handleImageError"
+              />
+              <span v-else class="text-gray-700 font-bold">
+                {{ authStore.user?.name?.charAt(0).toUpperCase() || 'U' }}
+              </span>
+            </div>
             <div class="flex-1">
-              <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-              <div class="h-4 bg-gray-200 rounded w-full"></div>
+              <textarea
+                v-model="newComment"
+                placeholder="Viết bình luận của bạn..."
+                rows="4"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none transition-colors"
+              ></textarea>
+              <div class="flex justify-end mt-3">
+                <button
+                  @click="submitComment"
+                  :disabled="!newComment.trim()"
+                  class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                >
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                  </svg>
+                  Gửi bình luận
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        <div v-else-if="comments.length > 0" class="space-y-4">
+        <!-- Comments List -->
+        <div v-if="commentsLoading" class="space-y-5">
+          <div v-for="i in 5" :key="i" class="bg-gray-50 rounded-xl p-5 border border-gray-200 animate-pulse">
+            <div class="flex space-x-4">
+              <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
+              <div class="flex-1">
+                <div class="h-4 bg-gray-300 rounded w-1/4 mb-3"></div>
+                <div class="h-4 bg-gray-300 rounded w-full mb-2"></div>
+                <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-else-if="comments.length > 0" class="space-y-5">
           <div
             v-for="comment in comments"
             :key="comment.id"
-            class="flex space-x-4 pb-4 border-b border-gray-200 last:border-0"
+            class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200"
           >
-            <img
-              :src="comment.user?.avatar || '/default.svg'"
-              :alt="comment.user?.name"
-              class="w-10 h-10 rounded-full flex-shrink-0"
-              @error="handleImageError"
-            />
-            <div class="flex-1">
-              <div class="flex items-center space-x-2 mb-1">
-                <span class="font-semibold text-gray-900">{{ comment.user?.name || 'Người dùng' }}</span>
-                <span class="text-sm text-gray-500">·</span>
-                <span class="text-sm text-gray-500">{{ formatDate(comment.created_at) }}</span>
+            <div class="flex items-start space-x-4">
+              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-white shadow-sm">
+                <img
+                  v-if="comment.user?.avatar"
+                  :src="comment.user.avatar"
+                  :alt="comment.user?.name"
+                  class="w-full h-full object-cover"
+                  @error="handleImageError"
+                />
+                <span v-else class="text-gray-700 font-bold text-lg">
+                  {{ comment.user?.name?.charAt(0).toUpperCase() || 'U' }}
+                </span>
               </div>
-              <p class="text-gray-700 mb-2">{{ comment.content }}</p>
-              <div class="flex items-center space-x-4 text-sm text-gray-500">
-                <button class="flex items-center hover:text-blue-600 transition-colors">
-                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
-                  </svg>
-                  {{ comment.likes_count || 0 }}
-                </button>
-                <button class="hover:text-blue-600 transition-colors">Trả lời</button>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="font-semibold text-gray-900">{{ comment.user?.name || 'Người dùng' }}</span>
+                  <span class="text-gray-400">·</span>
+                  <span class="text-xs text-gray-500 flex items-center">
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    {{ formatDate(comment.created_at) }}
+                  </span>
+                </div>
+                <p class="text-gray-800 mb-3 leading-relaxed whitespace-pre-wrap break-words">{{ comment.content }}</p>
+                <div class="flex items-center space-x-4 pt-3 border-t border-gray-100">
+                  <button class="flex items-center text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
+                    </svg>
+                    {{ comment.likes_count || 0 }}
+                  </button>
+                  <button class="flex items-center text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                    </svg>
+                    Trả lời
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -512,8 +555,7 @@ onMounted(async () => {
   
   await Promise.all([
     loadComic(),
-    loadChapters(),
-    checkFollowing()
+    loadChapters()
   ])
 })
 
@@ -531,6 +573,8 @@ async function loadComic() {
     const response = await apiClient.get(publicEndpoints.comics.showBySlug(slug))
     if (response.data?.success) {
       comic.value = response.data.data
+      // Sử dụng is_following từ API response
+      isFollowing.value = comic.value.is_following || false
     }
   } catch (error) {
     console.error('Failed to load comic:', error)
@@ -591,35 +635,33 @@ async function loadComments() {
   }
 }
 
-async function checkFollowing() {
-  if (!comic.value || !authStore.isAuthenticated) {
-    isFollowing.value = false
-    return
-  }
-  
-  try {
-    const response = await apiClient.get(userEndpoints.follows.isFollowing(comic.value.id))
-    if (response.data?.success) {
-      isFollowing.value = response.data.data || false
-    }
-  } catch (error) {
-    console.error('Failed to check following:', error)
-  }
-}
-
 async function toggleFollow() {
   if (!authStore.isAuthenticated) {
     router.push('/auth/login')
     return
   }
   
+  if (!comic.value) return
+  
   try {
     if (isFollowing.value) {
       await apiClient.delete(userEndpoints.follows.unfollow(comic.value.id))
       isFollowing.value = false
+      // Cập nhật trạng thái trong comic object
+      if (comic.value) {
+        comic.value.is_following = false
+        comic.value.stats = comic.value.stats || {}
+        comic.value.stats.follow_count = Math.max(0, (comic.value.stats.follow_count || 0) - 1)
+      }
     } else {
       await apiClient.post(userEndpoints.follows.follow(comic.value.id))
       isFollowing.value = true
+      // Cập nhật trạng thái trong comic object
+      if (comic.value) {
+        comic.value.is_following = true
+        comic.value.stats = comic.value.stats || {}
+        comic.value.stats.follow_count = (comic.value.stats.follow_count || 0) + 1
+      }
     }
   } catch (error) {
     console.error('Failed to toggle follow:', error)
