@@ -361,15 +361,16 @@
                         />
                       </div>
                       
-                      <!-- Icon URL -->
+                      <!-- Icon Upload -->
                       <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Icon (URL)</label>
-                        <input
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Icon</label>
+                        <ImageUploader
                           v-model="channel.icon"
-                          type="text"
-                          maxlength="500"
-                          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="/icons/zalo.png"
+                          :defaultUrl="channel.icon"
+                          :maxSize="2 * 1024 * 1024"
+                          :autoUpload="true"
+                          @remove="channel.icon = ''"
+                          @error="handleUploadError"
                         />
                       </div>
                       
