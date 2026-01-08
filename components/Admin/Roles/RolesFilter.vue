@@ -12,7 +12,7 @@
     <template #advanced-filters="{ filters, onChange }">
       <!-- Trạng thái -->
       <SelectFilter
-        v-model="filters.status"
+        v-model="filters['filters[status]']"
         :options="statusOptions"
         placeholder="Tất cả trạng thái"
         @update:model-value="onChange"

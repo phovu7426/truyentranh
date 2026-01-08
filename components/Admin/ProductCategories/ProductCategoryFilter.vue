@@ -14,7 +14,7 @@
       <!-- Danh mục cha -->
       <div>
         <SelectFilter
-          v-model="filters.parent_id"
+          v-model="filters['filters[parent_id]']"
           :options="parentOptions"
           label-field="name"
           value-field="id"
@@ -37,7 +37,7 @@
       <!-- Trạng thái -->
       <div class="min-w-[150px]">
         <SelectFilter
-          v-model="filters.status"
+          v-model="filters['filters[status]']"
           :options="statusOptions"
           label-field="label"
           value-field="value"

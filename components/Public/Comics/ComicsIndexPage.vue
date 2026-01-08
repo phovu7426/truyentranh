@@ -15,30 +15,30 @@
                 Danh sách truyện
               </NuxtLink>
               <NuxtLink
-                to="/home/comics?sort_by=view_count&sort_order=DESC"
+                to="/home/comics?sort=view_count:desc"
                 class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
-                :class="{ 'bg-blue-100 text-blue-700 font-medium': isActiveLink('/home/comics', { sort_by: 'view_count', sort_order: 'DESC' }) }"
+                :class="{ 'bg-blue-100 text-blue-700 font-medium': isActiveLink('/home/comics', { sort: 'view_count:desc' }) }"
               >
                 Truyện hot
               </NuxtLink>
               <NuxtLink
-                to="/home/comics?sort_by=created_at&sort_order=DESC"
+                to="/home/comics?sort=created_at:desc"
                 class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
-                :class="{ 'bg-blue-100 text-blue-700 font-medium': isActiveLink('/home/comics', { sort_by: 'created_at', sort_order: 'DESC' }) }"
+                :class="{ 'bg-blue-100 text-blue-700 font-medium': isActiveLink('/home/comics', { sort: 'created_at:desc' }) }"
               >
                 Truyện mới
               </NuxtLink>
               <NuxtLink
-                to="/home/comics?sort_by=updated_at&sort_order=DESC"
+                to="/home/comics?sort=updated_at:desc"
                 class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
-                :class="{ 'bg-blue-100 text-blue-700 font-medium': isActiveLink('/home/comics', { sort_by: 'updated_at', sort_order: 'DESC' }) }"
+                :class="{ 'bg-blue-100 text-blue-700 font-medium': isActiveLink('/home/comics', { sort: 'updated_at:desc' }) }"
               >
                 Mới cập nhật
               </NuxtLink>
               <NuxtLink
-                to="/home/comics?sort_by=follow_count&sort_order=DESC"
+                to="/home/comics?sort=follow_count:desc"
                 class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
-                :class="{ 'bg-blue-100 text-blue-700 font-medium': isActiveLink('/home/comics', { sort_by: 'follow_count', sort_order: 'DESC' }) }"
+                :class="{ 'bg-blue-100 text-blue-700 font-medium': isActiveLink('/home/comics', { sort: 'follow_count:desc' }) }"
               >
                 Truyện phổ biến
               </NuxtLink>
@@ -104,7 +104,7 @@
               @change="handleFilterChange"
             >
               <option value="">Tất cả danh mục</option>
-              <option v-for="category in categories" :key="category.id" :value="category.slug">
+              <option v-for="category in categories" :key="category.id" :value="category.id">
                 {{ category.name }}
               </option>
             </select>
@@ -117,11 +117,11 @@
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               @change="handleFilterChange"
             >
-              <option value="updated_at:DESC">Mới cập nhật</option>
-              <option value="created_at:DESC">Mới nhất</option>
-              <option value="view_count:DESC">Xem nhiều nhất</option>
-              <option value="title:ASC">Tên A-Z</option>
-              <option value="title:DESC">Tên Z-A</option>
+              <option value="updated_at:desc">Mới cập nhật</option>
+              <option value="created_at:desc">Mới nhất</option>
+              <option value="view_count:desc">Xem nhiều nhất</option>
+              <option value="title:asc">Tên A-Z</option>
+              <option value="title:desc">Tên Z-A</option>
             </select>
           </div>
         </div>
@@ -191,7 +191,7 @@ const comics = ref<any[]>([])
 const categories = ref<any[]>([])
 const searchQuery = ref('')
 const selectedCategory = ref('')
-const sortBy = ref('created_at:DESC')
+const sortBy = ref('created_at:desc')
 
 // Pagination
 const { 
@@ -205,32 +205,30 @@ const {
 
 // Computed properties for page title and description based on query params
 const pageTitle = computed(() => {
-  const sortByParam = route.query.sort_by as string
-  const sortOrderParam = route.query.sort_order as string
+  const sortParam = route.query.sort as string
   
-  if (sortByParam === 'updated_at' && sortOrderParam === 'DESC') {
+  if (sortParam === 'updated_at:desc') {
     return 'Mới Cập Nhật'
-  } else if (sortByParam === 'view_count' && sortOrderParam === 'DESC') {
+  } else if (sortParam === 'view_count:desc') {
     return 'Truyện Hot'
-  } else if (sortByParam === 'created_at' && sortOrderParam === 'DESC') {
+  } else if (sortParam === 'created_at:desc') {
     return 'Truyện Mới'
-  } else if (sortByParam === 'follow_count' && sortOrderParam === 'DESC') {
+  } else if (sortParam === 'follow_count:desc') {
     return 'Truyện Phổ Biến'
   }
   return 'Danh Sách Truyện'
 })
 
 const pageDescription = computed(() => {
-  const sortByParam = route.query.sort_by as string
-  const sortOrderParam = route.query.sort_order as string
+  const sortParam = route.query.sort as string
   
-  if (sortByParam === 'updated_at' && sortOrderParam === 'DESC') {
+  if (sortParam === 'updated_at:desc') {
     return 'Khám phá những truyện tranh được cập nhật mới nhất'
-  } else if (sortByParam === 'view_count' && sortOrderParam === 'DESC') {
+  } else if (sortParam === 'view_count:desc') {
     return 'Những truyện tranh được xem nhiều nhất'
-  } else if (sortByParam === 'created_at' && sortOrderParam === 'DESC') {
+  } else if (sortParam === 'created_at:desc') {
     return 'Những truyện tranh mới được thêm vào hệ thống'
-  } else if (sortByParam === 'follow_count' && sortOrderParam === 'DESC') {
+  } else if (sortParam === 'follow_count:desc') {
     return 'Những truyện tranh được theo dõi nhiều nhất'
   }
   return 'Khám phá thế giới truyện tranh đa dạng'
@@ -240,10 +238,14 @@ const pageDescription = computed(() => {
 function isActiveLink(path: string, query: Record<string, string>) {
   if (route.path !== path) return false
   
-  // If query object is empty, check if route has no query params (except page and search/category)
+  // If query object is empty, check if route has no query params (except page, search, filters, sort)
   if (Object.keys(query).length === 0) {
-    const allowedParams = ['page', 'search', 'category']
-    const otherParams = Object.keys(route.query).filter(k => !allowedParams.includes(k))
+    const allowedParams = ['page', 'search', 'sort']
+    const otherParams = Object.keys(route.query).filter(k => {
+      // Allow filters[...] params
+      if (k.startsWith('filters[')) return false
+      return !allowedParams.includes(k)
+    })
     return otherParams.length === 0
   }
   
@@ -255,42 +257,44 @@ function isActiveLink(path: string, query: Record<string, string>) {
   }
   
   // Check that no unexpected sort params exist
-  const sortParams = ['sort_by', 'sort_order', 'sort']
-  const hasOtherSortParams = sortParams.some(param => {
-    if (query[param]) return false // This param is expected
-    return route.query[param] !== undefined && route.query[param] !== query[param]
-  })
-  
-  if (hasOtherSortParams) return false
+  if (query.sort) {
+    // If query has sort, route should only have sort (not sort_by or sort_order)
+    if (route.query.sort_by || route.query.sort_order) {
+      return false
+    }
+  } else {
+    // If query doesn't have sort, route shouldn't have sort either
+    if (route.query.sort) {
+      return false
+    }
+  }
   
   return true
 }
 
 // Load categories
 onMounted(async () => {
-  await Promise.all([
-    loadCategories(),
-    loadComics()
-  ])
+  await loadCategories()
+  await loadComics()
 })
 
-// Watch route query
+// Watch route query - URL params = API params, no transformation
 watch(() => route.query, async (newQuery, oldQuery) => {
-  // Only update searchQuery if it changed in URL (not from input)
+  // Update search from URL
   const urlSearch = (newQuery.search as string) || ''
   if (urlSearch !== searchQuery.value) {
     searchQuery.value = urlSearch
   }
   
-  selectedCategory.value = (newQuery.category as string) || ''
+  // Update category from URL - use filters[comic_category_id] directly
+  const categoryId = (newQuery['filters[comic_category_id]'] as string) || ''
+  selectedCategory.value = categoryId
   
-  // Handle both formats: sort (combined) or sort_by + sort_order (separate)
-  if (newQuery.sort_by && newQuery.sort_order) {
-    sortBy.value = `${newQuery.sort_by}:${newQuery.sort_order}`
-  } else if (newQuery.sort) {
+  // Update sort from URL - use sort directly
+  if (newQuery.sort) {
     sortBy.value = (newQuery.sort as string)
   } else {
-    sortBy.value = 'created_at:DESC'
+    sortBy.value = 'created_at:desc'
   }
   
   const page = parseInt((newQuery.page as string) || '1')
@@ -312,22 +316,18 @@ async function loadCategories() {
 async function loadComics() {
   loading.value = true
   try {
+    // Build params directly from route query - URL params = API params
     const params: any = {
       page: currentPage.value,
       limit: perPage.value
     }
 
-    if (searchQuery.value) {
-      params.search = searchQuery.value
-    }
-
-    if (selectedCategory.value) {
-      params['filters[category_slug]'] = selectedCategory.value
-    }
-
-    if (sortBy.value) {
-      params.sort = sortBy.value
-    }
+    // Copy all query params to API params (except page which we set above)
+    Object.keys(route.query).forEach(key => {
+      if (key !== 'page' && route.query[key] !== undefined && route.query[key] !== null && route.query[key] !== '') {
+        params[key] = route.query[key]
+      }
+    })
 
     const response = await apiClient.get(publicEndpoints.comics.list, { params })
     
@@ -367,17 +367,26 @@ function handlePageChange(page: number) {
 
 function updateUrl() {
   const query: any = {}
-  if (searchQuery.value) query.search = searchQuery.value
-  if (selectedCategory.value) query.category = selectedCategory.value
   
-  // Convert sort format from "field:order" to sort_by and sort_order for consistency
-  if (sortBy.value !== 'created_at:DESC') {
-    const [field, order] = sortBy.value.split(':')
-    query.sort_by = field
-    query.sort_order = order || 'DESC'
+  // Set search
+  if (searchQuery.value) {
+    query.search = searchQuery.value
   }
   
-  if (currentPage.value > 1) query.page = currentPage.value.toString()
+  // Set category filter - use filters[comic_category_id] directly
+  if (selectedCategory.value) {
+    query['filters[comic_category_id]'] = selectedCategory.value
+  }
+  
+  // Set sort - use sort directly
+  if (sortBy.value && sortBy.value !== 'created_at:desc') {
+    query.sort = sortBy.value
+  }
+  
+  // Set page
+  if (currentPage.value > 1) {
+    query.page = currentPage.value.toString()
+  }
 
   router.push({ query })
 }

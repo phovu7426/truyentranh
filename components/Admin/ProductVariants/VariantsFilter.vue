@@ -14,7 +14,7 @@
       <!-- Bao gồm đã xóa -->
       <div>
         <SelectFilter
-          v-model="filters.include_deleted"
+          v-model="filters['filters[include_deleted]']"
           :options="includeDeletedOptions"
           placeholder="Bao gồm đã xóa"
           @update:model-value="onChange"
@@ -24,7 +24,7 @@
       <!-- Lọc theo tồn kho thấp -->
       <div>
         <SelectFilter
-          v-model="filters.low_stock_only"
+          v-model="filters['filters[low_stock_only]']"
           :options="booleanOptions"
           placeholder="Chỉ tồn kho thấp"
           @update:model-value="onChange"
@@ -34,7 +34,7 @@
       <!-- Theo dõi tồn kho -->
       <div>
         <SelectFilter
-          v-model="filters.track_inventory"
+          v-model="filters['filters[track_inventory]']"
           :options="booleanOptions"
           placeholder="Theo dõi tồn kho"
           @update:model-value="onChange"
@@ -47,7 +47,7 @@
       <!-- Trạng thái -->
       <div class="min-w-[150px]">
         <SelectFilter
-          v-model="filters.status"
+          v-model="filters['filters[status]']"
           :options="statusOptions"
           placeholder="Chọn trạng thái"
           @update:model-value="onChange"
@@ -57,7 +57,7 @@
       <!-- Sản phẩm cha -->
       <div class="min-w-[180px]">
         <SelectFilter
-          v-model="filters.product_id"
+          v-model="filters['filters[product_id]']"
           :options="productOptions"
           placeholder="Chọn sản phẩm"
           @update:model-value="onChange"

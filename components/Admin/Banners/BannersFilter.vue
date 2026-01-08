@@ -14,7 +14,7 @@
       <!-- Bao gồm đã xóa -->
       <div>
         <SelectFilter
-          v-model="filters.include_deleted"
+          v-model="filters['filters[include_deleted]']"
           :options="includeDeletedOptions"
           placeholder="Bao gồm đã xóa"
           @update:model-value="onChange"
@@ -27,7 +27,7 @@
       <!-- Trạng thái -->
       <div class="min-w-[150px]">
         <SelectFilter
-          v-model="filters.status"
+          v-model="filters['filters[status]']"
           :options="statusOptions"
           placeholder="Chọn trạng thái"
           @update:model-value="onChange"
@@ -37,7 +37,7 @@
       <!-- Vị trí banner -->
       <div class="min-w-[150px]">
         <SelectFilter
-          v-model="filters.location_id"
+          v-model="filters['filters[location_id]']"
           :options="locationOptions"
           placeholder="Chọn vị trí"
           @update:model-value="onChange"

@@ -31,10 +31,10 @@
         </div>
         <div class="flex-1 min-w-[160px]">
           <SelectFilter
-            v-model="filters.include_deleted"
+            v-model="filters['filters[include_deleted]']"
             :options="includeDeletedOptions"
             placeholder="Chọn dữ liệu"
-            @update:model-value="value => handleFieldChange(filters, 'include_deleted', value, onChange)"
+            @update:model-value="value => handleFieldChange(filters, 'filters[include_deleted]', value, onChange)"
           />
         </div>
       </div>

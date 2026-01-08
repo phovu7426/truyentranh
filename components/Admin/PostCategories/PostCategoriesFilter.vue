@@ -14,7 +14,7 @@
       <!-- Trạng thái -->
       <div class="min-w-[150px]">
         <SelectFilter
-          v-model="filters.status"
+          v-model="filters['filters[status]']"
           :options="statusOptions"
           placeholder="Chọn trạng thái"
           @update:model-value="onChange"

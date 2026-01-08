@@ -14,7 +14,7 @@
       <!-- Trạng thái -->
       <div class="min-w-[150px]">
         <SelectFilter
-          v-model="filters.status"
+          v-model="filters['filters[status]']"
           :options="statusOptions"
           placeholder="Chọn trạng thái"
           @update:model-value="onChange"
@@ -24,7 +24,7 @@
       <!-- Hiển thị trong menu -->
       <div class="min-w-[150px]">
         <SelectFilter
-          v-model="filters.show_in_menu"
+          v-model="filters['filters[show_in_menu]']"
           :options="showInMenuOptions"
           placeholder="Hiển thị trong menu"
           @update:model-value="onChange"
@@ -37,7 +37,7 @@
       <!-- Menu cha -->
       <div>
         <SelectFilter
-          v-model="filters.parent_id"
+          v-model="filters['filters[parent_id]']"
           :options="parentMenuOptions"
           placeholder="Chọn menu cha"
           @update:model-value="onChange"
@@ -47,7 +47,7 @@
       <!-- Loại menu -->
       <div>
         <SelectFilter
-          v-model="filters.type"
+          v-model="filters['filters[type]']"
           :options="typeOptions"
           placeholder="Chọn loại menu"
           @update:model-value="onChange"

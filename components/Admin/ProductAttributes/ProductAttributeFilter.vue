@@ -9,7 +9,7 @@
     <template #advanced-filters="{ filters, onChange }">
       <!-- Bắt buộc -->
       <SelectFilter
-        v-model="filters.is_required"
+        v-model="filters['filters[is_required]']"
         :options="requiredOptions"
         placeholder="Tất cả"
         @update:model-value="onChange"
@@ -17,7 +17,7 @@
       
       <!-- Là biến thể -->
       <SelectFilter
-        v-model="filters.is_variation"
+        v-model="filters['filters[is_variation]']"
         :options="variationOptions"
         placeholder="Là biến thể"
         @update:model-value="onChange"
@@ -25,7 +25,7 @@
       
       <!-- Kèm giá trị -->
       <SelectFilter
-        v-model="filters.include_values"
+        v-model="filters['filters[include_values]']"
         :options="includeValuesOptions"
         placeholder="Kèm giá trị"
         @update:model-value="onChange"
@@ -35,7 +35,7 @@
     <template #main-filters="{ filters, onChange }">
       <!-- Trạng thái -->
       <SelectFilter
-        v-model="filters.status"
+        v-model="filters['filters[status]']"
         :options="statusOptions"
         label-field="label"
         value-field="value"
@@ -45,7 +45,7 @@
 
       <!-- Loại -->
       <SelectFilter
-        v-model="filters.type"
+        v-model="filters['filters[type]']"
         :options="typeOptions"
         label-field="label"
         value-field="value"
