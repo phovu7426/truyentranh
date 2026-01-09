@@ -65,8 +65,10 @@ export default defineNuxtConfig({
     baseURL: '/',
     cdnURL: '',
     head: {
-      titleTemplate: (titleChunk) => {
-        return titleChunk ? `${titleChunk} | ${process.env.NUXT_PUBLIC_SITE_NAME || 'Cửa hàng'}` : `${process.env.NUXT_PUBLIC_SITE_NAME || 'Cửa hàng'}`
+      titleTemplate: (titleChunk?: string) => {
+        return titleChunk
+          ? `${titleChunk} | ${process.env.NUXT_PUBLIC_SITE_NAME || 'Cửa hàng'}`
+          : `${process.env.NUXT_PUBLIC_SITE_NAME || 'Cửa hàng'}`
       },
       htmlAttrs: {
         lang: 'vi'
@@ -92,8 +94,11 @@ export default defineNuxtConfig({
         { rel: 'canonical', href: process.env.NUXT_PUBLIC_SITE_URL || '' },
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         { rel: 'sitemap', type: 'application/xml', href: '/sitemap.xml' },
-        // DNS prefetch for API calls
-        { rel: 'dns-prefetch', href: process.env.NUXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000' }
+        // DNS prefetch cho API backend để tối ưu TTFB/LCP khi gọi API từ client
+        {
+          rel: 'dns-prefetch',
+          href: process.env.NUXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000'
+        }
       ]
     }
   },

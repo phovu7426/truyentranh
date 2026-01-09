@@ -10,6 +10,8 @@
         v-if="comic.cover_image"
         :src="comic.cover_image"
         :alt="comic.title"
+        loading="lazy"
+        decoding="async"
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         @error="handleImageError"
       />

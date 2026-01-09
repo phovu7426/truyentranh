@@ -160,7 +160,7 @@
 
         <div v-else-if="trendingComics.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           <ComicCard
-            v-for="comic in trendingComics.slice(0, 18)"
+            v-for="comic in trendingComics.slice(0, 12)"
             :key="comic.id"
             :comic="comic"
           />
@@ -203,6 +203,8 @@
             <img
               :src="comic.cover_image || '/default.svg'"
               :alt="comic.title"
+              loading="lazy"
+              decoding="async"
               class="w-16 h-24 object-cover rounded flex-shrink-0"
               @error="handleImageError"
             />
@@ -269,7 +271,7 @@
 
         <div v-else-if="popularComics.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           <ComicCard
-            v-for="comic in popularComics.slice(0, 18)"
+            v-for="comic in popularComics.slice(0, 12)"
             :key="comic.id"
             :comic="comic"
           />
@@ -303,7 +305,7 @@
 
         <div v-else-if="newestComics.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           <ComicCard
-            v-for="comic in newestComics.slice(0, 18)"
+            v-for="comic in newestComics.slice(0, 12)"
             :key="comic.id"
             :comic="comic"
           />
@@ -314,7 +316,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGlobalApiClient } from '@/composables/api'
 import { publicEndpoints } from '@/api/endpoints'
@@ -348,38 +350,46 @@ const categories = ref<any[]>([])
 const currentFeaturedIndex = ref(0)
 
 // Loading state - chỉ cần một loading state cho tất cả
-const loading = ref(false)
+const loading = ref(true)
 
-// Load data - Gọi một API duy nhất
-onMounted(async () => {
-  await loadHomepageData()
-})
-
-// Load tất cả dữ liệu từ một API duy nhất
-async function loadHomepageData() {
-  loading.value = true
-  try {
+/**
+ * Load tất cả dữ liệu từ một API duy nhất bằng useAsyncData để:
+ * - SSR sẵn dữ liệu, giảm thời gian render LCP
+ * - Hạn chế fetch lại trên client khi hydration
+ */
+const { data: homepageData, error: homepageError } = await useAsyncData(
+  'homepage-data',
+  async () => {
     const response = await apiClient.get(publicEndpoints.homepage)
-    
+
     if (response.data?.success) {
-      const data = response.data.data
-      
-      // Comics data - Structure mới: flat, không nested
-      featuredComics.value = data.top_viewed_comics || []
-      trendingComics.value = data.trending_comics || []
-      popularComics.value = data.popular_comics || []
-      newestComics.value = data.newest_comics || []
-      recentUpdateComics.value = data.recent_update_comics || []
-      
-      // Categories data
-      categories.value = data.comic_categories || []
+      return response.data.data
     }
-  } catch (error) {
-    console.error('Failed to load homepage data:', error)
-  } finally {
-    loading.value = false
+
+    return null
   }
+)
+
+if (homepageData.value) {
+  const data = homepageData.value as any
+
+  // Comics data - Structure mới: flat, không nested
+  featuredComics.value = data.top_viewed_comics || []
+  trendingComics.value = data.trending_comics || []
+  popularComics.value = data.popular_comics || []
+  newestComics.value = data.newest_comics || []
+  recentUpdateComics.value = data.recent_update_comics || []
+
+  // Categories data
+  categories.value = data.comic_categories || []
 }
+
+if (homepageError.value) {
+  // Đảm bảo UI không bị kẹt ở trạng thái loading nếu lỗi
+  console.error('Failed to load homepage data:', homepageError.value)
+}
+
+loading.value = !homepageData.value && !homepageError.value
 
 function prevFeatured() {
   if (currentFeaturedIndex.value > 0) {
