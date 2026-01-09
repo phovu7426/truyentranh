@@ -2,6 +2,7 @@
   <NuxtLink
     :to="`/home/comics/${comic.slug}`"
     class="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-200"
+    :aria-label="`Xem chi tiết truyện ${comic.title}`"
   >
     <!-- Cover Image -->
     <div class="relative aspect-[3/4] overflow-hidden bg-gray-200">
@@ -57,7 +58,8 @@
       <div v-if="comic.last_chapter" class="mb-2">
         <NuxtLink
           :to="`/home/comics/${comic.slug}/chapters/${comic.last_chapter.id}`"
-          class="text-blue-600 hover:text-blue-700 font-medium text-sm block truncate"
+          class="text-blue-600 hover:text-blue-700 font-medium text-sm block truncate py-1"
+          :aria-label="`Đọc ${comic.title} - ${comic.last_chapter.title || `Chương ${comic.last_chapter.chapter_index}`}`"
           @click.stop
         >
           {{ comic.last_chapter.title || `Chương ${comic.last_chapter.chapter_index}` }}

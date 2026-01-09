@@ -11,6 +11,8 @@
               @click="prevFeatured"
               :disabled="currentFeaturedIndex === 0"
               class="p-2 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              type="button"
+              aria-label="Truyện nổi bật trước"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -20,6 +22,8 @@
               @click="nextFeatured"
               :disabled="currentFeaturedIndex === featuredComics.length - 1"
               class="p-2 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              type="button"
+              aria-label="Truyện nổi bật tiếp theo"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -53,12 +57,18 @@
             @click="goToComic(comic.slug)"
           >
             <div class="md:w-48 flex-shrink-0">
-              <img
-                :src="comic.cover_image || '/default.svg'"
-                :alt="comic.title"
-                class="w-full h-64 md:h-full object-cover"
-                @error="handleImageError"
-              />
+              <div class="w-full h-64 md:h-full overflow-hidden">
+                <img
+                  :src="comic.cover_image || '/default.svg'"
+                  :alt="comic.title"
+                  :fetchpriority="index === currentFeaturedIndex ? 'high' : 'auto'"
+                  :loading="index === currentFeaturedIndex ? 'eager' : 'lazy'"
+                  width="320"
+                  height="480"
+                  class="w-full h-full object-cover"
+                  @error="handleImageError"
+                />
+              </div>
             </div>
             <div class="flex-1 p-6">
               <h3 class="text-xl font-bold text-gray-900 mb-3">{{ comic.title }}</h3>
@@ -109,21 +119,30 @@
             Tìm kiếm nâng cao
           </NuxtLink>
         </div>
-        <div class="flex flex-wrap gap-2">
-          <button
-            v-for="category in categories.slice(0, 8)"
-            :key="category.id"
-            @click="filterByCategory(category.id)"
-            class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-colors"
-          >
-            {{ category.name }}
-          </button>
-          <NuxtLink
-            to="/home/comics"
-            class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-colors"
-          >
-            Xem thêm
-          </NuxtLink>
+        <div class="flex flex-wrap gap-2 min-h-[44px]">
+          <template v-if="loading">
+            <div
+              v-for="i in 4"
+              :key="i"
+              class="h-9 w-20 bg-gray-200 rounded-full animate-pulse"
+            ></div>
+          </template>
+          <template v-else>
+            <button
+              v-for="category in categories.slice(0, 8)"
+              :key="category.id"
+              @click="filterByCategory(category.id)"
+              class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-colors"
+            >
+              {{ category.name }}
+            </button>
+            <NuxtLink
+              to="/home/comics"
+              class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-colors"
+            >
+              Xem thêm
+            </NuxtLink>
+          </template>
         </div>
       </section>
 
@@ -141,7 +160,7 @@
 
         <div v-else-if="trendingComics.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           <ComicCard
-            v-for="comic in trendingComics.slice(0, 30)"
+            v-for="comic in trendingComics.slice(0, 18)"
             :key="comic.id"
             :comic="comic"
           />
@@ -250,7 +269,7 @@
 
         <div v-else-if="popularComics.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           <ComicCard
-            v-for="comic in popularComics.slice(0, 30)"
+            v-for="comic in popularComics.slice(0, 18)"
             :key="comic.id"
             :comic="comic"
           />
@@ -284,7 +303,7 @@
 
         <div v-else-if="newestComics.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           <ComicCard
-            v-for="comic in newestComics.slice(0, 30)"
+            v-for="comic in newestComics.slice(0, 18)"
             :key="comic.id"
             :comic="comic"
           />
