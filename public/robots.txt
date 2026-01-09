@@ -1,25 +1,55 @@
-# Robots.txt cho website
-# Cho phép tất cả các search engines truy cập
+# Robots.txt cho website Truyện Tranh
+# Cho phép tất cả các search engines truy cập nội dung công khai
 
 User-Agent: *
+# Cho phép tất cả các trang công khai
+Allow: /
+Allow: /home/
+Allow: /home/comics/
+Allow: /home/comics/*/chapters/
+Allow: /home/posts/
+Allow: /home/about
+Allow: /home/contact
+
+# Chặn các trang admin và private
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /user/
+
+# Sitemap location (sẽ được thay thế tự động bởi server route)
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# Crawl-delay để giảm tải server (1 giây)
+Crawl-delay: 1
+
+# Googlebot - cho phép crawl đầy đủ
+User-Agent: Googlebot
 Allow: /
 Disallow: /admin/
 Disallow: /api/
 Disallow: /auth/
-Disallow: /user/profile/
-Disallow: /home/cart/
-Disallow: /home/checkout/
-Disallow: /home/orders/
-Disallow: /home/order-success/
-Disallow: /home/payment/
+Disallow: /user/
+Crawl-delay: 0
 
-# Sitemap location
-Sitemap: https://yourdomain.com/sitemap.xml
+# Googlebot-Image - cho phép index ảnh truyện tranh
+User-Agent: Googlebot-Image
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /user/
 
-# Crawl-delay (tùy chọn, giảm tải server)
+# Bingbot
+User-Agent: Bingbot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /user/
 Crawl-delay: 1
 
-# Block specific bots nếu cần
+# Block các bots spam/aggressive crawlers
 User-Agent: AhrefsBot
 Disallow: /
 
@@ -27,4 +57,10 @@ User-Agent: SemrushBot
 Disallow: /
 
 User-Agent: MJ12bot
+Disallow: /
+
+User-Agent: DotBot
+Disallow: /
+
+User-Agent: BLEXBot
 Disallow: /

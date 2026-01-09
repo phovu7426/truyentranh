@@ -23,16 +23,16 @@ export default defineEventHandler(async (event) => {
     
     return robotsContent
   } catch (error) {
-    // Fallback nếu không đọc được file
+    // Fallback nếu không đọc được file - tối ưu cho trang truyện tranh
     const defaultRobots = `User-Agent: *
 Allow: /
+Allow: /home/comics/
+Allow: /home/comics/*/chapters/
+Allow: /home/posts/
 Disallow: /admin/
 Disallow: /api/
 Disallow: /auth/
-Disallow: /user/profile/
-Disallow: /home/cart/
-Disallow: /home/checkout/
-Disallow: /home/orders/
+Disallow: /user/
 
 Sitemap: ${siteUrl}/sitemap.xml`
     
